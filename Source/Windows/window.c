@@ -263,7 +263,7 @@ static void wintw_set_maximised(TermWin *, bool maximised);
 static void wintw_move(TermWin *, int x, int y);
 static void wintw_set_zorder(TermWin *, bool top);
 static void wintw_palette_set(TermWin *, unsigned, unsigned, const rgb *);
-static void wintw_palette_get_overrides(TermWin *);
+static void wintw_palette_get_overrides(TermWin *, Terminal *);
 
 static const TermWinVtable windows_termwin_vt = {
     .setup_draw_ctx = wintw_setup_draw_ctx,
@@ -734,17 +734,6 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
             CW_USEDEFAULT, guess_width, guess_height, NULL, NULL, inst, NULL);
         memset(&dpi_info, 0, sizeof(struct _dpi_info));
         init_dpi_info();
-/* PuttyDriver #1 - Putty has started. */
-        if (parent_hwnd > 0) {
-            putty_hwnd = wgs.term_hwnd;
-            HWND parent = GetWindow(parent_hwnd, GW_HWNDFIRST);
-            if (parent)
-                SendMessage(parent_hwnd, WM_APP, (WPARAM)putty_hwnd, 0);
-
-            curs_x = -1;
-            curs_y = -1;
-        }
-/* PuttyDriver */
         sfree(uappname);
     }
 
@@ -896,6 +885,15 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
     term_set_focus(term, GetForegroundWindow() == wgs.term_hwnd);
     UpdateWindow(wgs.term_hwnd);
 
+/* PuttyDriver #1 - Putty has started. */
+        if (parent_hwnd > 0) {
+            putty_hwnd = wgs.term_hwnd;
+
+            curs_x = -1;
+            curs_y = -1;
+        }
+/* PuttyDriver */
+
     while (1) {
         HANDLE *handles;
         int nhandles, n;
@@ -922,12 +920,20 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
              */
             timeout = 0;
         } else {
+
 /* PuttyDriver #2 - Putty is waiting for some user input.  */
             if (parent_hwnd > 0) {
+
                 HWND parent = GetWindow(parent_hwnd, GW_HWNDFIRST);
                 if (parent) {
                     char buf[20];
 
+					if (!putty_started) {
+						putty_started = true;
+						
+						SendMessage(parent_hwnd, WM_APP, (WPARAM)putty_hwnd, 0);
+					}
+					
                     COPYDATASTRUCT cd;
 
                     sprintf(buf, "#~#CUR3%04d %04d#~#", term->curs.x, term->curs.y);
@@ -966,7 +972,7 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
                 }
 /* PuttyDriver */
                 goto finished;         /* two-level break */
-            }
+			}
             HWND logbox = event_log_window();
             if (!(IsWindow(logbox) && IsDialogMessage(logbox, &msg)))
                 DispatchMessageW(&msg);
@@ -1258,7 +1264,7 @@ static inline rgb rgb_from_colorref(COLORREF cr)
     return toret;
 }
 
-static void wintw_palette_get_overrides(TermWin *tw)
+static void wintw_palette_get_overrides(TermWin *tw, Terminal *term)
 {
     if (conf_get_bool(conf, CONF_system_colour)) {
         rgb rgb;
@@ -2449,7 +2455,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 
             if (conf_get_bool(conf, CONF_system_colour) !=
                 conf_get_bool(prev_conf, CONF_system_colour))
-                term_notify_palette_overrides_changed(term);
+                term_notify_palette_changed(term);
 
             /* Pass new config data to the terminal */
             term_reconfig(term, conf);
@@ -3215,56 +3221,53 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
             if (GetScrollInfo(hwnd, SB_VERT, &si) == 0)
                 si.nTrackPos = HIWORD(wParam);
             term_scroll(term, 1, si.nTrackPos);
-
-            if (in_scrollbar_loop) {
-                /*
-                 * Allow window updates to happen during interactive
-                 * scroll.
-                 *
-                 * When the user takes hold of our window's scrollbar
-                 * and wobbles it interactively back and forth, the
-                 * first thing that happens is that this window
-                 * procedure receives WM_SYSCOMMAND / SC_VSCROLL. [1]
-                 * The default handler for that window message starts
-                 * a subsidiary message loop, which continues to run
-                 * until the user lets go of the scrollbar again. All
-                 * WM_VSCROLL / SB_THUMBTRACK messages are generated
-                 * by the handlers within that subsidiary message
-                 * loop.
-                 *
-                 * So, during that time, _our_ message loop is not
-                 * running, which means toplevel callbacks and timers
-                 * and so forth are not happening, which means that
-                 * when we redraw the window and set a timer to clear
-                 * the cooldown flag 20ms later, that timer never
-                 * fires, and we aren't able to keep redrawing the
-                 * window.
-                 *
-                 * The 'obvious' answer would be to seize that
-                 * SYSCOMMAND ourselves and inhibit the default
-                 * handler, so that our message loop carries on
-                 * running. But that would mean we'd have to
-                 * reimplement the whole of the scrollbar handler!
-                 *
-                 * So instead we apply a bodge: set a static variable
-                 * that indicates that we're _in_ that sub-loop, and
-                 * if so, decide it's OK to manually call
-                 * term_update() proper, bypassing the timer and
-                 * cooldown and rate-limiting systems completely,
-                 * whenever we see an SB_THUMBTRACK. This shouldn't
-                 * cause a rate overload, because we're only doing it
-                 * once per UI event!
-                 *
-                 * [1] Actually, there's an extra oddity where
-                 * SC_HSCROLL and SC_VSCROLL have their documented
-                 * values the wrong way round. Many people on the
-                 * Internet have noticed this, e.g.
-                 * https://stackoverflow.com/q/55528397
-                 */
-                term_update(term);
-            }
             break;
           }
+        }
+
+        if (in_scrollbar_loop) {
+            /*
+             * Allow window updates to happen during interactive
+             * scroll.
+             *
+             * When the user takes hold of our window's scrollbar and
+             * wobbles it interactively back and forth, or presses on
+             * one of the arrow buttons at the ends, the first thing
+             * that happens is that this window procedure receives
+             * WM_SYSCOMMAND / SC_VSCROLL. [1] The default handler for
+             * that window message starts a subsidiary message loop,
+             * which continues to run until the user lets go of the
+             * scrollbar again. All WM_VSCROLL / SB_THUMBTRACK
+             * messages are generated by the handlers within that
+             * subsidiary message loop.
+             *
+             * So, during that time, _our_ message loop is not
+             * running, which means toplevel callbacks and timers and
+             * so forth are not happening, which means that when we
+             * redraw the window and set a timer to clear the cooldown
+             * flag 20ms later, that timer never fires, and we aren't
+             * able to keep redrawing the window.
+             *
+             * The 'obvious' answer would be to seize that SYSCOMMAND
+             * ourselves and inhibit the default handler, so that our
+             * message loop carries on running. But that would mean
+             * we'd have to reimplement the whole of the scrollbar
+             * handler!
+             *
+             * So instead we apply a bodge: set a static variable that
+             * indicates that we're _in_ that sub-loop, and if so,
+             * decide it's OK to manually call term_update() proper,
+             * bypassing the timer and cooldown and rate-limiting
+             * systems completely, whenever we see an SB_THUMBTRACK.
+             * This shouldn't cause a rate overload, because we're
+             * only doing it once per UI event!
+             *
+             * [1] Actually, there's an extra oddity where SC_HSCROLL
+             * and SC_VSCROLL have their documented values the wrong
+             * way round. Many people on the Internet have noticed
+             * this, e.g. https://stackoverflow.com/q/55528397
+             */
+            term_update(term);
         }
         break;
       case WM_PALETTECHANGED:
@@ -3439,7 +3442,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
       case WM_SYSCOLORCHANGE:
         if (conf_get_bool(conf, CONF_system_colour)) {
             /* Refresh palette from system colours. */
-            term_notify_palette_overrides_changed(term);
+            term_notify_palette_changed(term);
             init_palette();
             /* Force a repaint of the terminal window. */
             term_invalidate(term);
@@ -5498,8 +5501,10 @@ static void wintw_clip_request_paste(TermWin *tw, int clipboard)
      * that tells us it's OK to paste.
      */
     DWORD in_threadid; /* required for Win9x */
-    CreateThread(NULL, 0, clipboard_read_threadfunc,
-                 wgs.term_hwnd, 0, &in_threadid);
+    HANDLE hThread = CreateThread(NULL, 0, clipboard_read_threadfunc,
+                                  wgs.term_hwnd, 0, &in_threadid);
+    if (hThread)
+        CloseHandle(hThread);          /* we don't need the thread handle */
 }
 
 /*
