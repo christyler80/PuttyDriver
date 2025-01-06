@@ -360,28 +360,51 @@ void ldisc_check_sendok(Ldisc *ldisc)
     queue_toplevel_callback(ldisc_check_sendok_callback, ldisc);
 }
 
-void ldisc_send(Ldisc *ldisc, const void *vbuf, int len, bool interactive)
+void ldisc_send(Ldisc* ldisc, const void* vbuf, int len, bool interactive)
 {
-    const char *buf = (const char *)vbuf;
+    const char* buf = (const char*)vbuf;
     int keyflag = 0;
 
     assert(ldisc->term);
 
-/* PuttyDriver #7 - Putty is processing user inputs. */
-    if (parent_hwnd > 0) {
-        HWND parent = GetWindow(parent_hwnd, GW_HWNDFIRST);
-        if (parent) {
-            if (len < 0) len = 1;
+    /* PuttyDriver #7 - Putty is processing user inputs. */
+    if (vterm_driver == true) {
 
-            COPYDATASTRUCT cd;
+        if (parent_hwnd > 0) {
+            HWND parent = GetWindow(parent_hwnd, GW_HWNDFIRST);
 
-            cd.dwData = 2;
-            cd.cbData = len;
-            cd.lpData = (PVOID)buf;
-            SendMessage(parent_hwnd, WM_COPYDATA, (WPARAM)putty_hwnd, (LPARAM)&cd);
+            if (parent) {
+                if (len < 0) len = 1;
+
+                COPYDATASTRUCT cd;
+
+                cd.dwData = 2;
+                cd.cbData = len;
+                cd.lpData = (PVOID)buf;
+            
+                SendMessage(parent_hwnd, WM_COPYDATA, (WPARAM)putty_hwnd, (LPARAM)&cd);
+            }
+        } else {
+
+            len = abs(len);
+
+            strncpy(vterm_message, buf, len);
+
+            vterm_message[len] = 0;
+
+            if (vTermLog_Execution == true) {
+                vTermWriteToLog("ldisc_send->vTermProcessData - Before", vterm_message, "");
+            }
+
+            vTermProcessData(buf, len, vTerm_Command);
+
+            if (vTermLog_Execution == true) {
+                vTermWriteToLog("ldisc_send->vTermProcessData - After", vterm_message, "");
+            }
         }
     }
-/* PuttyDriver */
+    /* PuttyDriver */
+
     if (interactive) {
         /*
          * Interrupt a paste from the clipboard, if one was in
@@ -457,6 +480,8 @@ void ldisc_send(Ldisc *ldisc, const void *vbuf, int len, bool interactive)
                         bsb(ldisc, plen(ldisc, ldisc->buf[ldisc->buflen - 1]));
                     ldisc->buflen--;
                 }
+                if (c == CTRL('U'))
+                    break;             /* ^U *just* erases a line */
                 ldisc_to_backend_special(ldisc, SS_EL, 0);
                 /*
                  * We don't send IP, SUSP or ABORT if the user has

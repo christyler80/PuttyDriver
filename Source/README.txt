@@ -1,14 +1,14 @@
-To compile putty.exe, download Putty version 0.78 source code
+To compile putty.exe, download Putty version 0.81 source code
 
 Overwrite with the folowing Putty source files with the versions in this folder:
 
-terminal\terminal.h
+terminal\terminal.c
 windows\window.c
 cmdline.c
 ldisc.c
 putty.h
 
 
-Note: the *.c.78 files are the original Putty files and retained included for reference.
+Note: the *.c.81 files are the original Putty files and retained included for reference.
 
 
