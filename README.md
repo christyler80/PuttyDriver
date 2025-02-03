@@ -3,7 +3,7 @@ PuttyDriver evaluates a Microsoft Windows automation and robotics interface with
 
 PuttyDriver aims to i) help integrate legacy applications within modern digital systems, ii) assist systems administration and iii) automate legacy application testing (e.g., regression testing) via an easy to use interface.
 
-PuTTY screens and input commands are captured automatically and can optionally be saved to any SQL database using the schemas provided. An example SQLite database is included for testing.
+PuTTY screens and input commands are captured automatically and can optionally be saved to a SQL database using the schemas provided. An example SQLite database is included for testing.
 
 Scripts can be developed and tested interactively using Micrososft Excel and once tested, scheduled to be run automatically using the PuTTY command line and application screens.
 
