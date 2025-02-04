@@ -5,6 +5,8 @@ PuttyDriver aims to i) help integrate legacy applications within modern digital 
 
 PuTTY screens and input commands are captured automatically and can optionally be saved to a SQL database using the schemas provided. An example SQLite database is included for testing.
 
-Scripts can be developed and tested interactively using Micrososft Excel and once tested, scheduled to be run automatically using the PuTTY command line and application screens.
+Scripts can be developed and tested interactively using Micrososft Excel and once tested, scheduled to run automatically using the accompanying modified varsion of PuTTY.
+
+PuTTY command line text and application screens text, together with PuTTY cursor position are used to control the timing and execution of script instructions.
 
 .NET controller programs are under development and scheduled for Q2 2025.
