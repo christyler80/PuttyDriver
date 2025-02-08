@@ -383,6 +383,10 @@ int cmdline_process_param(const char *p, char *value,
                     conf_free(conf2);
                 }
 
+/* PuttyDriver #13 */
+                strcpy(vterm_hostname, hostname);
+/* PuttyDriver */
+
                 sfree(hostname);
                 sfree(user);
 
@@ -449,18 +453,65 @@ int cmdline_process_param(const char *p, char *value,
         UNAVAILABLE_IN(TOOLTYPE_NO_VERBOSE_OPTION);
         seen_verbose_option = true;
     }
-/* PuttyDriver #6 Get Parent Hwnd. */
+
+    /* PuttyDriver #6 Load Parameters */
+
+    puttydriver = false;
+    vterm_nocapture = false;
+
+    if (!strcmp(p, "-sessionid")) {
+        RETURN(2);
+        puttydriver = true;
+        sscanf(value, "%d", &vterm_sessionid);
+    }
+
     if (!strcmp(p, "-parent")) {
         RETURN(2);
-        sscanf( value, "%d", &parent_hwnd );
+        puttydriver = true;
+        sscanf(value, "%d", &parent_hwnd);
     }
 
-    if (!strcmp(p, "-screendata")) {
+    if (!strcmp(p, "-inputscapture")) {
+        RETURN(2);
+        puttydriver = true;
+        sscanf(value, "%s", &vterm_inputs_file);
+    }
+
+    if (!strcmp(p, "-screencapture")) {
+        RETURN(2);
+        puttydriver = true;
+        sscanf(value, "%s", &vterm_capture_file);
+    }
+
+    if (!strcmp(p, "-nocapture")) {
         RETURN(1);
-        putty_scrdata = true;
+        vterm_nocapture = true;
     }
 
-/* PuttyDriver */
+    if (!strcmp(p, "-keycodesfile")) {
+        RETURN(2);
+        puttydriver = true;
+        sscanf(value, "%s", &vterm_keycodes_file);
+    }
+
+    if (!strcmp(p, "-logfile")) {
+        RETURN(2);
+        sscanf(value, "%s", &vterm_log_file);
+    }
+
+    if (!strcmp(p, "-nolog")) {
+        RETURN(1);
+        vterm_nolog = true;
+    }
+
+    if (!strcmp(p, "-script")) {
+        RETURN(2);
+        puttydriver = true;
+        vterm_script = true;
+        sscanf(value, "%s", &vterm_script_file);
+    }
+    /* PuttyDriver */
+
     if (!strcmp(p, "-l")) {
         RETURN(2);
         UNAVAILABLE_IN(TOOLTYPE_NONNETWORK);

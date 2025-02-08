@@ -541,8 +541,8 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
     hprev = prev;
 
 /* PuttyDriver #0 - Putty is starting. */
-    vterm_driver = false;
-    putty_started = false;
+    puttydriver = false;
+    vterm_started = false;
 /* PuttyDriver */
 
     sk_init();
@@ -830,7 +830,7 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
     gui_terminal_ready(wgs.term_hwnd, &wgs.seat, backend);
 
 /* PuttyDriver #1 - Putty has started. */
-    if (vterm_driver == true) {
+    if (puttydriver == true) {
 
         if (parent_hwnd > 0) {
             putty_hwnd = wgs.term_hwnd;
@@ -838,8 +838,9 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
             vterm_curs_x = -1;
             vterm_curs_y = -1;
         }
-    
-        if (vterm_script == true) vTermInitialise(wgs.term_hwnd);
+        else {
+            vTermInitialise(wgs.term_hwnd);
+        }
     }
 /* PuttyDriver */
 
@@ -871,7 +872,7 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
         else {
 
 /* PuttyDriver #2 - Putty is waiting for some user input.  */
-            if (vterm_driver == true) {
+            if (puttydriver == true) {
 
                 char buf[30];
                 int len = 30;
@@ -884,9 +885,9 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
 
                     if (parent) {
 
-                        if (!(putty_started == true)) {
+                        if (!(vterm_started == true)) {
 
-                            putty_started = true;
+                            vterm_started = true;
 
                             SendMessage(parent_hwnd, WM_APP, (WPARAM)putty_hwnd, 0);
                         }
@@ -937,7 +938,7 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
         while (sw_PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
             if (msg.message == WM_QUIT) {
 /* PuttyDriver #3 - Putty is closing.  */
-                if (vterm_driver == true) {
+                if (puttydriver == true) {
 
                     if (parent_hwnd > 0) {
                         HWND parent = GetWindow(parent_hwnd, GW_HWNDFIRST);
@@ -1111,7 +1112,7 @@ void cleanup_exit(int code)
     CoUninitialize();
 
 /* PuttyDriver #4 - Putty is closing.  */
-    if (vterm_driver == true) {
+    if (puttydriver == true) {
 
         if (parent_hwnd > 0) {
             HWND parent = GetWindow(parent_hwnd, GW_HWNDFIRST);
@@ -2311,7 +2312,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
           title = dupprintf("%s Exit Confirmation", appname);
 
 /* PuttyDriver #5 - Instruction received to close Putty.  */
-          if (vterm_driver == true) {
+          if (puttydriver == true) {
 
               msg = NULL;
 

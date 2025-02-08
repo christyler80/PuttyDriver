@@ -869,22 +869,21 @@ extern const char *const appname;
 #define vTerm_Command 2
 
 #define MAX_MESSAGE_LENGTH 4096
-;
+
+bool puttydriver;
 
 HWND parent_hwnd;
 HWND putty_hwnd;
 
-bool putty_started;
-
 int vterm_curs_x;
 int vterm_curs_y;
+
+char vterm_inputs_file[FILENAME_MAX];
 
 char vterm_capture_file[FILENAME_MAX];
 bool vterm_nocapture;
 
 char vterm_keycodes_file[FILENAME_MAX];
-
-bool vterm_driver;
 
 char vterm_hostname[FILENAME_MAX];
 
@@ -897,6 +896,8 @@ bool vterm_script;
 char vterm_script_file[FILENAME_MAX];
 
 int vterm_sessionid;
+
+bool vterm_started;
 
 bool vterm_trace_on;
 

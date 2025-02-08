@@ -368,13 +368,14 @@ void ldisc_send(Ldisc* ldisc, const void* vbuf, int len, bool interactive)
     assert(ldisc->term);
 
     /* PuttyDriver #7 - Putty is processing user inputs. */
-    if (vterm_driver == true) {
+    if (puttydriver == true) {
+
+        if (len < 0) len = 1;
 
         if (parent_hwnd > 0) {
             HWND parent = GetWindow(parent_hwnd, GW_HWNDFIRST);
 
             if (parent) {
-                if (len < 0) len = 1;
 
                 COPYDATASTRUCT cd;
 
@@ -384,9 +385,8 @@ void ldisc_send(Ldisc* ldisc, const void* vbuf, int len, bool interactive)
             
                 SendMessage(parent_hwnd, WM_COPYDATA, (WPARAM)putty_hwnd, (LPARAM)&cd);
             }
-        } else {
-
-            len = abs(len);
+        } 
+        else {
 
             strncpy(vterm_message, buf, len);
 
@@ -396,7 +396,7 @@ void ldisc_send(Ldisc* ldisc, const void* vbuf, int len, bool interactive)
                 vTermWriteToLog("ldisc_send->vTermProcessData - Before", vterm_message, "");
             }
 
-            vTermProcessData(buf, len, vTerm_Command);
+            vTermProcessData(vterm_message, len, vTerm_Command);
 
             if (vTermLog_Execution == true) {
                 vTermWriteToLog("ldisc_send->vTermProcessData - After", vterm_message, "");
