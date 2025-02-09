@@ -393,13 +393,13 @@ void ldisc_send(Ldisc* ldisc, const void* vbuf, int len, bool interactive)
             vterm_message[len] = 0;
 
             if (vTermLog_Execution == true) {
-                vTermWriteToLog("ldisc_send->vTermProcessData - Before", vterm_message, "");
+                vTermWriteToLog("PuTTY ldisc_send->vTermProcessData - Before", dupprintf("%d", len), vterm_message);
             }
 
             vTermProcessData(vterm_message, len, vTerm_Command);
 
             if (vTermLog_Execution == true) {
-                vTermWriteToLog("ldisc_send->vTermProcessData - After", vterm_message, "");
+                vTermWriteToLog("PuTTY ldisc_send->vTermProcessData - After", dupprintf("%d", len), vterm_message);
             }
         }
     }

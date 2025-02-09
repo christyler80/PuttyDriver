@@ -730,7 +730,7 @@ void vTermWriteToLog( char* FunctionName, char* Actual_Data, char* Expected_Data
 
     char log_data[MAX_RAWDATA_LEN];
 
-    if (vterm_nolog != true) {
+    if (strncmp(FunctionName, "PuTTY",5) == 0 && vterm_nolog != true) {
 
         if (vTermLog_Stream != NULL) {
 
@@ -1816,7 +1816,7 @@ void vTermSendCommand() {
                             }
 
                             if (vTermLog_Execution == true) {
-                                vTermCommandMismatch("Command Prompt Mismatch", vTerm.Screen, vTerm.Command_Prompt_Expected);
+                                vTermCommandMismatch("Command Prompt Mismatch", dupprintf("%d %d %s", l_screen_pos, vTerm.Screen_Ptr, vTerm.Screen), vTerm.Command_Prompt_Expected);
                             }
                         }
                     }

@@ -5795,13 +5795,13 @@ static void term_out(Terminal *term, bool called_from_term_data)
                     vterm_message[len--] = 0;
 
                     if (vTermLog_Execution == true) {
-                        vTermWriteToLog("term_out->vTermWaitingForInput - Before", vterm_message, "");
+                        vTermWriteToLog("PuTTY term_out->vTermWaitingForInput - Before", vterm_message, "");
                     }
 
                     vTermWaitingForInput(term->curs.x, term->curs.y, term->cols, term->rows, true);
 
                     if (vTermLog_Execution == true) {
-                        vTermWriteToLog("term_out->vTermWaitingForInput - After", vterm_message, "");
+                        vTermWriteToLog("PuTTY term_out->vTermWaitingForInput - After", vterm_message, "");
                     }
 
                 }
@@ -6115,13 +6115,13 @@ static void do_paint_draw(Terminal *term, termline *ldata, int x, int y,
             vterm_message[len--] = 0;
 
             if (vTermLog_Execution == true) {   
-                vTermWriteToLog("do_paint_draw->vTermSessionGetScreen - Before", vterm_message, "");
+                vTermWriteToLog("PuTTY do_paint_draw->vTermSessionGetScreen - Before", vterm_message, "");
             }
 
             vTermSessionGetScreen(true);
 
             if (vTermLog_Execution == true) {   
-                vTermWriteToLog("do_paint_draw->vTermSessionGetScreen - After", vterm_message, "");
+                vTermWriteToLog("PuTTY do_paint_draw->vTermSessionGetScreen - After", vterm_message, "");
             }
 
         }
@@ -6866,13 +6866,13 @@ static void clipme(Terminal *term, pos top, pos bottom, bool rect, bool desel,
                 vterm_message[buflen] = 0;
 
                 if (vTermLog_Execution == true) {   
-                    vTermWriteToLog("void_clipme->vTermScreenUpdated - Before", vterm_message, "");
+                    vTermWriteToLog("PuTTY void_clipme->vTermScreenUpdated - Before", dupprintf("%d", buflen), vterm_message);
                 }
 
                 vTermScreenUpdated(vterm_message, buflen);
 
                 if (vTermLog_Execution == true) {   
-                    vTermWriteToLog("void_clipme->vTermScreenUpdated - After", vterm_message, "");
+                    vTermWriteToLog("PuTTY void_clipme->vTermScreenUpdated - After", dupprintf("%d", buflen), vterm_message);
                 }
             }
 
@@ -8024,13 +8024,13 @@ size_t term_data(Terminal* term, const void* data, size_t len)
             vterm_message[len] = 0;
 
             if (vTermLog_Execution == true) {
-                vTermWriteToLog("term_data->vTermProcessData - Before", vterm_message, "");
+                vTermWriteToLog("PuTTY term_data->vTermProcessData - Before", dupprintf("%d", len), vterm_message);
             }
 
             vTermProcessData((char*)data, len, vTerm_Data);
 
             if (vTermLog_Execution == true) {   
-                vTermWriteToLog("term_data->vTermProcessData - After", vterm_message, "");
+                vTermWriteToLog("PuTTY term_data->vTermProcessData - After", dupprintf("%d", len), vterm_message);
             }
         }
     }

@@ -871,6 +871,10 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
         }
         else {
 
+            timeout = INFINITE;
+            /* The messages seem unreliable; especially if we're being tricky */
+            term_set_focus(term, GetForegroundWindow() == wgs.term_hwnd);
+
 /* PuttyDriver #2 - Putty is waiting for some user input.  */
             if (puttydriver == true) {
 
@@ -908,22 +912,18 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
                     vterm_message[len--] = 0;
 
                     if (vTermLog_Execution == true) {   
-                        vTermWriteToLog("WINAPI WinMain->vTermWaitingForInput - Before", vterm_message, "");
+                        vTermWriteToLog("PuTTY WinMain->vTermWaitingForInput - Before", vterm_message, "");
                     }
 
                     vTermWaitingForInput(term->curs.x, term->curs.y, term->cols, term->rows, false);
 
                     if (vTermLog_Execution == true) {
-                        vTermWriteToLog("WINAPI WinMain->vTermWaitingForInput - After", vterm_message, "");
+                        vTermWriteToLog("PuTTY WinMain->vTermWaitingForInput - After", vterm_message, "");
                     }
 
                 }
             }
 /* PuttyDriver */
-
-            timeout = INFINITE;
-            /* The messages seem unreliable; especially if we're being tricky */
-            term_set_focus(term, GetForegroundWindow() == wgs.term_hwnd);
         }
 
         HandleWaitList *hwl = get_handle_wait_list();
