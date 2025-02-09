@@ -730,7 +730,7 @@ void vTermWriteToLog( char* FunctionName, char* Actual_Data, char* Expected_Data
 
     char log_data[MAX_RAWDATA_LEN];
 
-    if (strncmp(FunctionName, "PuTTY",5) == 0 && vterm_nolog != true) {
+    if (vterm_nolog != true) {
 
         if (vTermLog_Stream != NULL) {
 
@@ -2845,7 +2845,7 @@ void vTermInitialise(long term_hwnd) {
         }
     }
 
-    vTermLog_Execution = true;
+    vTermLog_Execution = false;
 
     ReadKeyCodesFromFile();
 
