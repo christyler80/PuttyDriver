@@ -29,10 +29,13 @@
 #define vTerm_Command_Max_Wait 15
 #define vTerm_Command_TimeOut 30
 
-#define vTerm_KeyName 0
-#define vTerm_KeyANSI 1
+#define vTerm_KeyID 0
+#define vTerm_KeyName 1
+#define vTerm_KeyValue 2
+#define vTerm_KeyHex 3
+#define vTerm_KeyANSI 4
 
-#define vTerm_KeyCode_Elements 3
+//#define vTerm_KeyCode_Elements 3
 
 #define vTerm_Sessions_Max 8
 #define vTerm_Session_Offset 14
@@ -178,6 +181,7 @@ typedef struct {
     int Submit_Key_Len;
     char Submit_Key_ANSI[MAX_STRING_LENGTH];
     char Submit_Key_Send[MAX_STRING_LENGTH];
+    char Submit_Key_Value[MAX_STRING_LENGTH];
 } vTerminal;
 
 vTerminal vTerm;
@@ -730,6 +734,7 @@ void vTermWriteToLog( char* FunctionName, char* Actual_Data, char* Expected_Data
 
     char log_data[MAX_RAWDATA_LEN];
 
+    //if (strncmp(FunctionName, "PuTTY",5) == 0 && vterm_nolog != true) {
     if (vterm_nolog != true) {
 
         if (vTermLog_Stream != NULL) {
@@ -801,7 +806,7 @@ void ReadKeyCodesFromFile() {
 
     while (fgets(input, sizeof(input), stream)) {
 
-        num = string_split(input, '|', vTerm_KeyCode_Elements, MAX_STRING_LENGTH);
+        num = string_split(input, '|', vTerm_KeyANSI + 1, MAX_STRING_LENGTH);
 
         if (num <= 0) {
 
@@ -814,7 +819,10 @@ void ReadKeyCodesFromFile() {
         }
         else {
 
+            strcpy(vTermKeyCodes[seq][vTerm_KeyID], ifnull(String_Array[vTerm_KeyID], "0"));
             strcpy(vTermKeyCodes[seq][vTerm_KeyName], ifnull(String_Array[vTerm_KeyName], "0"));
+            strcpy(vTermKeyCodes[seq][vTerm_KeyValue], ifnull(String_Array[vTerm_KeyValue], "0"));
+            strcpy(vTermKeyCodes[seq][vTerm_KeyHex], ifnull(String_Array[vTerm_KeyHex], "0"));
 
             if (strlen(String_Array[vTerm_KeyANSI]) >= 5) {
 
@@ -1288,6 +1296,7 @@ void vTermSubmitKey( char* CmdKey, bool AnsiSeq) {
                         vTerm.Submit_Key_Send[1] = '\0';
 
                         strcpy(vTerm.Submit_Key_ANSI, vTerm.Submit_Key_Send);
+                        strcpy(vTerm.Submit_Key_Value, vTerm.Submit_Key_Send);
 
                         vTerm.Submit_Key_Len = 1;
 
@@ -1297,8 +1306,10 @@ void vTermSubmitKey( char* CmdKey, bool AnsiSeq) {
                         memset(vTerm.Submit_Key_ANSI, 0, sizeof(vTerm.Submit_Key_ANSI));
 
                         strncpy(vTerm.Submit_Key_ANSI, vTermKeyCodes[l_ptr][vTerm_KeyANSI], strlen(vTermKeyCodes[l_ptr][vTerm_KeyANSI]));
+                        strncpy(vTerm.Submit_Key_Value, vTermKeyCodes[l_ptr][vTerm_KeyValue], strlen(vTermKeyCodes[l_ptr][vTerm_KeyValue]));
 
-                        vTerm.Submit_Key_Len = strlen(vTerm.Submit_Key_ANSI);
+                        //vTerm.Submit_Key_Len = strlen(vTerm.Submit_Key_ANSI);
+                        vTerm.Submit_Key_Len = strlen(vTerm.Submit_Key_Value);
 
                     }
 
@@ -1520,15 +1531,21 @@ void SendChars(long Hwnd, char* sChars, bool SysKey) {
         vTermWriteToLog("SendChars|", sChars, NULL);
     }
 
-    for (int i = 0; sChars[i] != '\0'; i++) {
+    if (SysKey == true) {
+        SendMessage((HWND)Hwnd, WM_KEYDOWN, (WPARAM)toint(sChars), (LPARAM)0L);
+    }
+    else {
 
-        send = sChars[i];
+        for (int i = 0; sChars[i] != '\0'; i++) {
 
-        if (SysKey == true) {
-            SendMessage((HWND)Hwnd, WM_KEYDOWN, (WPARAM)sChars[i], (LPARAM)0L);
-        }
-        else {
-            SendMessage((HWND)Hwnd, WM_CHAR, (WPARAM)sChars[i], (LPARAM)0L);
+            send = sChars[i];
+
+            if (SysKey == true) {
+                SendMessage((HWND)Hwnd, WM_KEYDOWN, (WPARAM)sChars[i], (LPARAM)0L);
+            }
+            else {
+                SendMessage((HWND)Hwnd, WM_CHAR, (WPARAM)sChars[i], (LPARAM)0L);
+            }
         }
     }
 }
@@ -1586,6 +1603,7 @@ void vTermCommandSend( bool FullCommand) {
         vTerm.Command_Prompt_Len = vTerm.Command_Prompt_Expected_Len;
 
         SendChars(vTerm.Hwnd, vTerm.Submit_Key_ANSI, false);
+        //SendChars(vTerm.Hwnd, vTerm.Submit_Key_Send, true);
 
         vTerm.Submit_Key_Len = 0;
 
@@ -1786,7 +1804,7 @@ void vTermSendCommand() {
                             }
                         }
 
-                        if (l_proc == false) {
+                        if (l_proc == true) {
                             vTerm.Screen_Ptr = l_screen_pos;
                         }
                     }
@@ -1815,9 +1833,9 @@ void vTermSendCommand() {
                                 }
                             }
 
-                            if (vTermLog_Execution == true) {
+                            //if (vTermLog_Execution == true) {
                                 vTermCommandMismatch("Command Prompt Mismatch", dupprintf("%d %d %s", l_screen_pos, vTerm.Screen_Ptr, vTerm.Screen), vTerm.Command_Prompt_Expected);
-                            }
+                            //}
                         }
                     }
                 }
@@ -1963,13 +1981,17 @@ void vTermWaitingForInput( int Cursor_X, int Cursor_Y, int Columns_X, int Rows_Y
 
         vTermSessionGetScreen( true);
 
-        if (!(vTerm.Screen_Cursor_Prev_X == vTerm.Screen_Cursor.X && vTerm.Screen_Cursor_Prev_Y == vTerm.Screen_Cursor.Y)) {
+        if (!toplevel_callback_pending()) {
+
+            if (!(vTerm.Screen_Cursor_Prev_X == vTerm.Screen_Cursor.X && vTerm.Screen_Cursor_Prev_Y == vTerm.Screen_Cursor.Y)) {
 
             strcpy(vTerm.Command_Current_Cursor_Pos, vTerm.Screen_Cursor.Y + "," + vTerm.Screen_Cursor.X);
 
             vTermSendCommand();
+            }
+
         }
-    }
+     }
     /* Waiting for input. */
     else if (vTerm.Command_Send_Buffer_Len + vTerm.Submit_Key_Len > 0) {
         vTermSendCommand();
@@ -2689,10 +2711,14 @@ void vTermScreenUpdated( char* PuttyData, int DataLength) {
             vTerm.Row_Updated_At = time(NULL);
             vTerm.Screen_Get = false;
 
+            //vTermWriteToLog(dupprintf("vTermScreenUpdated|vTermSetCommand (%s)", l_proc ? "true" : "false"), vTerm.Screen_New, vTerm.Screen);
+
             vTermSetCommand();
         }
 
         if (l_proc == true) {
+
+            //vTermWriteToLog(dupprintf("vTermScreenUpdated|vTermNextScreenRow (%s)", l_proc ? "true" : "false"), vTerm.Screen_New, vTerm.Screen);
 
             vTermNextScreenRow(true);
 
@@ -2846,7 +2872,9 @@ void vTermInitialise(long term_hwnd) {
     }
 
     vTermLog_Execution = false;
-
+    
+    SessionsKeyPressSync = false;
+    
     ReadKeyCodesFromFile();
 
     ReadCommandsFromFile();

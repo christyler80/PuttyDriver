@@ -74,6 +74,8 @@ DROP TABLE IF EXISTS "keypress_codes";
 CREATE TABLE IF NOT EXISTS "keypress_codes" (
     "key_id"       INTEGER NOT NULL UNIQUE,
     "key_name"     TEXT,
+    "key_value"    TEXT,
+    "key_hex"     TEXT,
     "key_ansi"     TEXT,
     "updated_from" TEXT NOT NULL,
     "updated_ip"   TEXT NOT NULL,
@@ -85,10 +87,6 @@ CREATE TABLE IF NOT EXISTS "keypress_codes" (
 DROP INDEX IF EXISTS "keypress_idx1";
 
 CREATE UNIQUE INDEX IF NOT EXISTS "keypress_idx1" ON "keypress_codes" ("key_name");
-
-DROP INDEX IF EXISTS "keypress_idx2";
-
-CREATE UNIQUE INDEX IF NOT EXISTS "keypress_idx2" ON "keypress_codes" ("key_ansi");
 
 DROP TABLE IF EXISTS "servers";
 

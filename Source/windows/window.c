@@ -874,56 +874,6 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
             timeout = INFINITE;
             /* The messages seem unreliable; especially if we're being tricky */
             term_set_focus(term, GetForegroundWindow() == wgs.term_hwnd);
-
-/* PuttyDriver #2 - Putty is waiting for some user input.  */
-            if (puttydriver == true) {
-
-                char buf[30];
-                int len = 30;
-
-                sprintf(buf, "#~#CUR3%04d %04d %04d %04d#~#", term->curs.x, term->curs.y, term->cols, term->rows);
-
-                if (parent_hwnd > 0) {
-
-                    HWND parent = GetWindow(parent_hwnd, GW_HWNDFIRST);
-
-                    if (parent) {
-
-                        if (!(vterm_started == true)) {
-
-                            vterm_started = true;
-
-                            SendMessage(parent_hwnd, WM_APP, (WPARAM)putty_hwnd, 0);
-                        }
-
-                        COPYDATASTRUCT cd;
-
-                        cd.dwData = 5;
-                        cd.cbData = 30;
-                        cd.lpData = (PVOID)buf;
-
-                        SendMessage(parent_hwnd, WM_COPYDATA, (WPARAM)putty_hwnd, (LPARAM)&cd);
-                    }
-                }
-                else {
-
-                    strncpy(vterm_message, buf, len);
-
-                    vterm_message[len--] = 0;
-
-                    if (vTermLog_Execution == true) {   
-                        vTermWriteToLog("PuTTY WinMain->vTermWaitingForInput - Before", vterm_message, "");
-                    }
-
-                    vTermWaitingForInput(term->curs.x, term->curs.y, term->cols, term->rows, false);
-
-                    if (vTermLog_Execution == true) {
-                        vTermWriteToLog("PuTTY WinMain->vTermWaitingForInput - After", vterm_message, "");
-                    }
-
-                }
-            }
-/* PuttyDriver */
         }
 
         HandleWaitList *hwl = get_handle_wait_list();
@@ -978,6 +928,58 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
         }
 
         run_toplevel_callbacks();
+
+        /* PuttyDriver #2 - Putty is waiting for some user input.  */
+        if (puttydriver == true) {
+
+            char buf[30];
+            int len = 30;
+
+            sprintf(buf, "#~#CUR3%04d %04d %04d %04d#~#", term->curs.x, term->curs.y, term->cols, term->rows);
+
+            if (parent_hwnd > 0) {
+
+                HWND parent = GetWindow(parent_hwnd, GW_HWNDFIRST);
+
+                if (parent) {
+
+                    if (!(vterm_started == true)) {
+
+                        vterm_started = true;
+
+                        SendMessage(parent_hwnd, WM_APP, (WPARAM)putty_hwnd, 0);
+                    }
+
+                    COPYDATASTRUCT cd;
+
+                    cd.dwData = 5;
+                    cd.cbData = 30;
+                    cd.lpData = (PVOID)buf;
+
+                    SendMessage(parent_hwnd, WM_COPYDATA, (WPARAM)putty_hwnd, (LPARAM)&cd);
+                }
+            }
+            else {
+
+                vterm_started = true;
+
+                strncpy(vterm_message, buf, len);
+
+                vterm_message[len--] = 0;
+
+                if (vTermLog_Execution == true) {
+                    vTermWriteToLog("PuTTY WinMain->vTermWaitingForInput - Before", vterm_message, "");
+                }
+
+                vTermWaitingForInput(term->curs.x, term->curs.y, term->cols, term->rows, false);
+
+                if (vTermLog_Execution == true) {
+                    vTermWriteToLog("PuTTY WinMain->vTermWaitingForInput - After", vterm_message, "");
+                }
+
+            }
+        }
+        /* PuttyDriver */
     }
 
   finished:

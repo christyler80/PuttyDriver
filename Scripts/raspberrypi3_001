@@ -1,0 +1,25 @@
+1||||login as:|0,0|0,10|pi||Enter|0|33|
+2||||password:|1,*|1,*|raspberry|Yes|Enter|0|34|
+3||||pi@raspberrypi:~ $||*,19|clear||Enter|0|35|
+4||||pi@raspberrypi:~ $|0,0|*,19|pwd||Enter|0|36|
+5||||pi@raspberrypi:~ $|2,0|*,19|ls||Enter|0|37|
+6||||||*,19|clear||Enter|0|38|
+7||||||0,19|pwd||Enter|0|39|
+8||||||2,19|ls||Enter|0|40|
+9||||||*,19|sudo raspi-config||Enter|0|41|
+10|Raspberry Pi Software Configuration Tool|3,12||1 System Options|5,8|5,8|||Enter|0|42|
+11|Raspberry Pi Software Configuration Tool|3,12||S1 Wireless LAN|5,8|5,8|||KeyDown|0|43|
+12|Raspberry Pi Software Configuration Tool|3,12||S2 Audio|6,8|6,8|||KeyDown|0|44|
+13|Raspberry Pi Software Configuration Tool|3,12||S3 Password|7,8|7,8|||KeyDown|0|45|
+14|Raspberry Pi Software Configuration Tool|3,12||S4 Hostname|8,8|8,8|||Enter|0|46|
+15|Please note: RFCs mandate|4,7||||19,38|||Enter|0|47|
+16|Please enter a hostname|3,12||||5,23|||Tab|0|48|
+17|Please enter a hostname|3,12||||19,26|||Tab|0|49|
+18|Please enter a hostname|3,12||||19,48|||Enter|0|50|
+19|Raspberry Pi Software Configuration Tool|3,12||1 System Options|5,8|5,8|||Tab|0|51|
+20|Raspberry Pi Software Configuration Tool|3,12||<Select>|18,22|18,23|||Tab|0|52|
+21|Raspberry Pi Software Configuration Tool|3,12||<Finish>|18,51|18,52|||Enter|0|53|
+22||||pi@raspberrypi:~ $|*,0|*,19|clear||Enter|0|54|
+23||||pi@raspberrypi:~ $|0,0|0,19|pwd||Enter|0|55|
+24||||pi@raspberrypi:~ $|2,0|2,19|ls||Enter|0|56|
+25||||pi@raspberrypi:~ $|5,0|5,19|exit||Enter|0||

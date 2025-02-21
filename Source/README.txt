@@ -1,18 +1,25 @@
-To compile putty.exe, download Putty version 0.81 source code
+To compile putty.exe for PuttyDriver, download Putty version 0.81 source code from https://www.chiark.greenend.org.uk/~sgtatham/putty/releases/0.81.html.
 
-Overwrite with the folowing Putty source files with the versions in this folder:
+Overwrite with the following Putty source files, with the 'PuttyDriver' versions in theses folders:
 
-stubs\puttydriver.c
+    stubs\puttydriver.c
 
-terminal\puttydriver.c
-terminal\terminal.c
+    terminal\puttydriver.c
+    terminal\terminal.c
 
-windows\window.c
+    windows\window.c
 
-cmdline.c
-ldisc.c
-putty.h
+    CMakeLists.txt
+    cmdline.c
+    ldisc.c
+    putty.h
 
+Follow the standard Putty build instructions in the README file which accompanies the downloaded Putty source code. 
 
-Note: the *.81 files included are the original Putty files and retained for reference.
+See 'PuttyDriver - Getting Started.pdf' for PuttyDriver setup and configuration instructions.
+
+Notes:
+
+   - this version of Putty is works on Microsoft Windows 10 or later. Other OS are not currently supported.
+   - the *.81 files included are the original Putty files and retained for reference.
 

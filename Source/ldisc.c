@@ -368,7 +368,7 @@ void ldisc_send(Ldisc* ldisc, const void* vbuf, int len, bool interactive)
     assert(ldisc->term);
 
     /* PuttyDriver #7 - Putty is processing user inputs. */
-    if (puttydriver == true) {
+    if (vterm_started == true) {
 
         if (len < 0) len = 1;
 

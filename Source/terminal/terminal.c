@@ -5762,7 +5762,8 @@ static void term_out(Terminal *term, bool called_from_term_data)
         logflush(term->logctx);
 
 /* PuttyDriver #8 - Putty has processed data. */
-    if (puttydriver == true) {
+    //if (vterm_started == true && (!toplevel_callback_pending())) {
+    if (vterm_started == true) {
 
         if (vterm_curs_x != term->curs.x || vterm_curs_y != term->curs.y) {
 
@@ -5771,40 +5772,37 @@ static void term_out(Terminal *term, bool called_from_term_data)
 
             sprintf(buf, "#~#CUR2%04d %04d %04d %04d#~#", term->curs.x, term->curs.y, term->cols, term->rows);
 
-            if (puttydriver == true) {
+            if (parent_hwnd > 0) {
 
-                if (parent_hwnd > 0) {
+                HWND parent = GetWindow(parent_hwnd, GW_HWNDFIRST);
 
-                    HWND parent = GetWindow(parent_hwnd, GW_HWNDFIRST);
+                if (parent) {
 
-                    if (parent) {
+                    COPYDATASTRUCT cd;
 
-                        COPYDATASTRUCT cd;
-
-                        cd.dwData = 3;
-                        cd.cbData = len;
+                    cd.dwData = 3;
+                    cd.cbData = len;
                         cd.lpData = (PVOID)buf;
 
-                        SendMessage(parent_hwnd, WM_COPYDATA, (WPARAM)putty_hwnd, (LPARAM)&cd);
-                    }
+                    SendMessage(parent_hwnd, WM_COPYDATA, (WPARAM)putty_hwnd, (LPARAM)&cd);
                 }
-                else {
+            }
+            else {
 
-                    strncpy(vterm_message, buf, len);
+                strncpy(vterm_message, buf, len);
 
-                    vterm_message[len--] = 0;
+                vterm_message[len--] = 0;
 
-                    if (vTermLog_Execution == true) {
-                        vTermWriteToLog("PuTTY term_out->vTermWaitingForInput - Before", vterm_message, "");
-                    }
-
-                    vTermWaitingForInput(term->curs.x, term->curs.y, term->cols, term->rows, true);
-
-                    if (vTermLog_Execution == true) {
-                        vTermWriteToLog("PuTTY term_out->vTermWaitingForInput - After", vterm_message, "");
-                    }
-
+                if (vTermLog_Execution == true) {
+                    vTermWriteToLog("PuTTY term_out->vTermWaitingForInput - Before", vterm_message, "");
                 }
+
+                vTermWaitingForInput(term->curs.x, term->curs.y, term->cols, term->rows, true);
+
+                if (vTermLog_Execution == true) {
+                    vTermWriteToLog("PuTTY term_out->vTermWaitingForInput - After", vterm_message, "");
+                }
+
             }
 
             vterm_curs_x = term->curs.x;
@@ -6087,7 +6085,7 @@ static void do_paint_draw(Terminal *term, termline *ldata, int x, int y,
     }
 
 /* PuttyDriver #9 - Terminal Windows has changed. */
-    if (puttydriver == true) {
+    if (vterm_started == true) {
 
         char buf[30];
         int len = 30;
@@ -6834,7 +6832,7 @@ static void clipme(Terminal *term, pos top, pos bottom, bool rect, bool desel,
         bool clip_local = false;
 
 /* PuttyDriver #10 Capture Putty screen via clipboard. */
-        if (puttydriver == true) {
+        if (vterm_started == true) {
 
            int buflen = WideCharToMultiByte(CP_ACP, 0, buf.textbuf, buf.bufpos, 0, 0, NULL, NULL);
 
@@ -8001,7 +7999,7 @@ size_t term_data(Terminal* term, const void* data, size_t len)
 /* PuttyDriver #11 - Putty terminal is processing data. */
 
     /* putty_scrdata = true; */
-    if (puttydriver == true) {
+    if (vterm_started == true) {
 
         if (parent_hwnd > 0) {
 
