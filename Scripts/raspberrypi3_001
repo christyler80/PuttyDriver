@@ -1,5 +1,6 @@
-1||||login as:|0,0|0,10|pi||Enter|0|33|
-2||||password:|1,*|1,*|raspberry|Yes|Enter|0|34|
+0|Raspberry Pi OS SSH|Raspberry Pi OS SSH|raspberrypi|home|192.168.1.90|SSH|22|||||
+1||||login as:|0,0|0,10|##login##||Enter|0|33|
+2||||password:|1,*|1,*|##password##|Yes|Enter|0|34|
 3||||pi@raspberrypi:~ $||*,19|clear||Enter|0|35|
 4||||pi@raspberrypi:~ $|0,0|*,19|pwd||Enter|0|36|
 5||||pi@raspberrypi:~ $|2,0|*,19|ls||Enter|0|37|
@@ -22,4 +23,4 @@
 22||||pi@raspberrypi:~ $|*,0|*,19|clear||Enter|0|54|
 23||||pi@raspberrypi:~ $|0,0|0,19|pwd||Enter|0|55|
 24||||pi@raspberrypi:~ $|2,0|2,19|ls||Enter|0|56|
-25||||pi@raspberrypi:~ $|5,0|5,19|exit||Enter|0||
+25||||pi@raspberrypi:~ $|5,0|5,19|exit||Enter|0|99|

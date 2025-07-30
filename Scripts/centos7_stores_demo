@@ -3,7 +3,7 @@
 3||||[informix@centos7 ~]$|15,0|15,22|ls||Enter|0|72|
 4||||[informix@centos7 ~]$|20,0|20,22|./run_stores4.sh||Enter|0|73|
 5|||No|MAIN:|0,0|0,5|||Enter|0|74|
-6|Customer Form|8,27|No|CUSTOMER:|0,0|0,9|f|||0|75|
+6|Customer Form|8,27|No|CUSTOMER:|0,0|0,9|f|Yes||0|75|
 7|Customer Form|8,27|No| Number      :[|10,7|10,22|||KeyDown|0|76|
 8|Customer Form|8,27|No| Owner Name  :[|11,7|11,22|Frank||Escape|0|77|
 9|Customer Form|8,27||BROWSE:|0,0|0,7|q|||0|78|
