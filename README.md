@@ -9,4 +9,4 @@ Scripts can be developed and tested interactively using Micrososft Excel and onc
 
 PuTTY command line text and application screens text, together with PuTTY cursor position are used to control the timing and execution of script instructions.
 
-.NET controller programs are under development and scheduled for Q2 2025.
+.NET controller programs are under development and scheduled for Q4 2025.

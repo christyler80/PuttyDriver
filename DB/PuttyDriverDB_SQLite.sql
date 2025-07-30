@@ -2,7 +2,7 @@ BEGIN TRANSACTION;
 
 DROP TABLE IF EXISTS "db_admin";
 
-CREATE TABLE IF NOT EXISTS "db_admin" (
+CREATE TABLE "db_admin" (
     "entity_id"          INTEGER NOT NULL UNIQUE,
     "entity_name"        TEXT NOT NULL,
     "entity_type"        TEXT,
@@ -23,13 +23,14 @@ CREATE TABLE IF NOT EXISTS "db_admin" (
 );
 
 DROP INDEX IF EXISTS "db_admin_idx1";
+DROP INDEX IF EXISTS "db_admin_idx2";
 
-CREATE INDEX IF NOT EXISTS "db_admin_idx1" ON "db_admin" ("entity_name");
-CREATE INDEX IF NOT EXISTS "db_admin_idx2" ON "db_admin" ("entity_type", "entity_parent");
+CREATE INDEX "db_admin_idx1" ON "db_admin" ("entity_name");
+CREATE INDEX "db_admin_idx2" ON "db_admin" ("entity_type", "entity_parent");
 
 DROP TABLE IF EXISTS "db_event_log";
 
-CREATE TABLE IF NOT EXISTS "db_event_log" (
+CREATE TABLE "db_event_log" (
     "log_id"              INTEGER NOT NULL UNIQUE,
     "event_type"          TEXT,
     "application_name"    TEXT,
@@ -53,25 +54,16 @@ CREATE TABLE IF NOT EXISTS "db_event_log" (
 );
 
 DROP INDEX IF EXISTS "db_event_log_idx1";
+DROP INDEX IF EXISTS "db_event_log_idx2";
+DROP INDEX IF EXISTS "db_event_log_idx3";
 
-CREATE INDEX IF NOT EXISTS "db_event_log_idx1" ON "db_event_log" ("application_name");
-CREATE INDEX IF NOT EXISTS "db_event_log_idx2" ON "db_event_log" ("db_server");
-CREATE INDEX IF NOT EXISTS "db_event_log_idx3" ON "db_event_log" ("db_table");
-
-DROP TABLE IF EXISTS "sessions_commands_inputs";
-DROP TABLE IF EXISTS "sessions_commands";
-DROP TABLE IF EXISTS "sessions_screens";
-DROP TABLE IF EXISTS "sessions";
-
-DROP TABLE IF EXISTS "scripts_commands";
-DROP TABLE IF EXISTS "scripts_servers";
-DROP TABLE IF EXISTS "scripts";
-
-DROP TABLE IF EXISTS "servers";
+CREATE INDEX "db_event_log_idx1" ON "db_event_log" ("application_name");
+CREATE INDEX "db_event_log_idx2" ON "db_event_log" ("db_server");
+CREATE INDEX "db_event_log_idx3" ON "db_event_log" ("db_table");
 
 DROP TABLE IF EXISTS "keypress_codes";
 
-CREATE TABLE IF NOT EXISTS "keypress_codes" (
+CREATE TABLE "keypress_codes" (
     "key_id"       INTEGER NOT NULL UNIQUE,
     "key_name"     TEXT,
     "key_value"    TEXT,
@@ -86,11 +78,22 @@ CREATE TABLE IF NOT EXISTS "keypress_codes" (
 
 DROP INDEX IF EXISTS "keypress_idx1";
 
-CREATE UNIQUE INDEX IF NOT EXISTS "keypress_idx1" ON "keypress_codes" ("key_name");
+CREATE UNIQUE INDEX "keypress_idx1" ON "keypress_codes" ("key_name");
+
+DROP TABLE IF EXISTS "sessions_commands_inputs";
+DROP TABLE IF EXISTS "sessions_commands";
+DROP TABLE IF EXISTS "sessions_screens";
+DROP TABLE IF EXISTS "sessions";
+
+DROP TABLE IF EXISTS "scripts_commands";
+DROP TABLE IF EXISTS "scripts_servers";
+DROP TABLE IF EXISTS "scripts";
 
 DROP TABLE IF EXISTS "servers";
 
-CREATE TABLE IF NOT EXISTS "servers" (
+DROP TABLE IF EXISTS "servers";
+
+CREATE TABLE "servers" (
     "server_id"          INTEGER NOT NULL UNIQUE,
     "server_name"        TEXT NOT NULL,
     "server_description" TEXT NOT NULL,
@@ -111,20 +114,16 @@ CREATE TABLE IF NOT EXISTS "servers" (
 );
 
 DROP INDEX IF EXISTS "servers_idx1";
-
-CREATE UNIQUE INDEX IF NOT EXISTS "servers_idx1" ON "servers" ("conn_ip", "conn_type", "conn_port");
-
 DROP INDEX IF EXISTS "servers_idx2";
-
-CREATE UNIQUE INDEX IF NOT EXISTS "servers_idx2" ON "servers" ("server_name");
-
 DROP INDEX IF EXISTS "servers_idx3";
 
-CREATE INDEX IF NOT EXISTS "servers_idx3" ON "servers" ("server_hostname");
+CREATE UNIQUE INDEX "servers_idx1" ON "servers" ("conn_ip", "conn_type", "conn_port");
+CREATE UNIQUE INDEX "servers_idx2" ON "servers" ("server_name");
+CREATE INDEX "servers_idx3" ON "servers" ("server_hostname");
 
 DROP TABLE IF EXISTS "scripts";
 
-CREATE TABLE IF NOT EXISTS "scripts" (
+CREATE TABLE "scripts" (
     "script_id"          INTEGER NOT NULL UNIQUE,
     "script_name"        TEXT NOT NULL,
     "script_description" TEXT NOT NULL,
@@ -144,11 +143,11 @@ CREATE TABLE IF NOT EXISTS "scripts" (
 
 DROP INDEX IF EXISTS "scripts_idx1";
 
-CREATE INDEX IF NOT EXISTS "scripts_idx1" ON "scripts" ("script_name");
+CREATE INDEX "scripts_idx1" ON "scripts" ("script_name");
 
 DROP TABLE IF EXISTS "scripts_servers";
 
-CREATE TABLE IF NOT EXISTS "scripts_servers" (
+CREATE TABLE "scripts_servers" (
     "script_svr_id" INTEGER NOT NULL UNIQUE,
     "server_id"     INTEGER NOT NULL,
     "server_name"   TEXT NOT NULL,
@@ -167,16 +166,14 @@ CREATE TABLE IF NOT EXISTS "scripts_servers" (
 );
 
 DROP INDEX IF EXISTS "scripts_servers_idx1";
-
-CREATE INDEX IF NOT EXISTS "scripts_servers_idx1" ON "scripts_servers" ("server_name");
-
 DROP INDEX IF EXISTS "scripts_servers_idx2";
 
-CREATE INDEX IF NOT EXISTS "scripts_servers_idx2" ON "scripts_servers" ("script_name");
+CREATE INDEX "scripts_servers_idx1" ON "scripts_servers" ("server_name");
+CREATE INDEX "scripts_servers_idx2" ON "scripts_servers" ("script_name");
 
 DROP TABLE IF EXISTS "scripts_commands";
 
-CREATE TABLE IF NOT EXISTS "scripts_commands" (
+CREATE TABLE "scripts_commands" (
     "script_cmd_id"         INTEGER NOT NULL UNIQUE,
     "script_id"             INTEGER NOT NULL,
     "script_name"           TEXT NOT NULL,
@@ -201,17 +198,18 @@ CREATE TABLE IF NOT EXISTS "scripts_commands" (
     PRIMARY KEY("script_cmd_id" AUTOINCREMENT)
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS "scripts_commands_idx1" ON "scripts_commands" ("script_id", "script_name", "command_seq");
+CREATE UNIQUE INDEX "scripts_commands_idx1" ON "scripts_commands" ("script_id", "script_name", "command_seq");
 
 DROP TABLE IF EXISTS "sessions";
 
-CREATE TABLE IF NOT EXISTS "sessions" (
+CREATE TABLE "sessions" (
     "session_id"        INTEGER NOT NULL UNIQUE,
     "session_name"      TEXT NOT NULL,
     "server_id"         INTEGER NOT NULL,
     "server_name"       TEXT NOT NULL,
     "script_id"         INTEGER NOT NULL,
     "script_name"       TEXT NOT NULL,
+    "script_commands"   INTEGER NOT NULL,
     "session_start_at"  REAL NOT NULL,
     "session_finish_at" REAL,
     "session_status"    TEXT NOT NULL,
@@ -225,11 +223,11 @@ CREATE TABLE IF NOT EXISTS "sessions" (
 
 DROP INDEX IF EXISTS "sessions_idx1";
 
-CREATE UNIQUE INDEX IF NOT EXISTS "sessions_idx1" ON "sessions" ("session_name");
+CREATE UNIQUE INDEX "sessions_idx1" ON "sessions" ("session_name");
 
 DROP TABLE IF EXISTS "sessions_commands";
 
-CREATE TABLE IF NOT EXISTS "sessions_commands" (
+CREATE TABLE "sessions_commands" (
     "session_cmd_id"             INTEGER NOT NULL UNIQUE,
     "session_id"                 INTEGER NOT NULL,
     "script_id"                  INTEGER NOT NULL,
@@ -264,7 +262,7 @@ CREATE TABLE IF NOT EXISTS "sessions_commands" (
 
 DROP TABLE IF EXISTS "sessions_commands_inputs";
 
-CREATE TABLE IF NOT EXISTS "sessions_commands_inputs" (
+CREATE TABLE "sessions_commands_inputs" (
     "session_inp_id" INTEGER NOT NULL UNIQUE,
     "session_id"     INTEGER NOT NULL,
     "script_id"      INTEGER NOT NULL,
@@ -285,7 +283,7 @@ CREATE TABLE IF NOT EXISTS "sessions_commands_inputs" (
 
 DROP TABLE IF EXISTS "sessions_screens";
 
-CREATE TABLE IF NOT EXISTS "sessions_screens" (
+CREATE TABLE "sessions_screens" (
     "session_scrn_id"          INTEGER NOT NULL UNIQUE,
     "session_id"               INTEGER NOT NULL,
     "session_cmd_id_from"      INTEGER,
@@ -303,13 +301,21 @@ CREATE TABLE IF NOT EXISTS "sessions_screens" (
     PRIMARY KEY("session_scrn_id" AUTOINCREMENT)
 );
 
-DROP VIEW IF EXISTS sessions_users_inputs_pending;
+DROP VIEW IF EXISTS sessions_commands_inputs_pending;
 
-CREATE VIEW sessions_users_inputs_pending 
+CREATE VIEW sessions_commands_inputs_pending 
 AS
 SELECT sessions_commands_inputs.session_inp_id
      , sessions_commands_inputs.session_id
      , sessions.session_name
+     , COALESCE((SELECT MAX(sessions_commands.command_seq)
+                 FROM   sessions_commands
+                 WHERE  sessions_commands.session_id = sessions.session_id) || ' of ' ||
+                (SELECT MAX(scripts_commands.command_seq)
+                 FROM   scripts_commands
+                 WHERE  scripts_commands.script_id = sessions_commands_inputs.script_id), 'None') As session_commands_run
+     , sessions.session_status
+     , sessions.updated_at As session_status_at
      , sessions_commands_inputs.script_id
      , scripts.script_name
      , sessions_commands_inputs.script_cmd_id
@@ -330,16 +336,17 @@ FROM   sessions_commands_inputs
        LEFT JOIN scripts ON scripts.script_id = sessions_commands_inputs.script_id
        LEFT JOIN scripts_commands ON scripts_commands.script_id = sessions_commands_inputs.script_id
                                  AND scripts_commands.command_seq = sessions_commands_inputs.command_seq
-WHERE EXISTS (SELECT sessions_commands_inputs.session_id
-              FROM   sessions_commands_inputs 
-              WHERE  sessions_commands_inputs.command_status NOT IN ('processed', 'updated'));
+WHERE EXISTS (SELECT sessions_commands_inputs2.session_id
+              FROM   sessions_commands_inputs as sessions_commands_inputs2
+              WHERE  sessions_commands_inputs2.session_id = sessions.session_id
+              AND NOT sessions_commands_inputs.command_status = 'updated');
 
-DROP TRIGGER IF EXISTS sessions_user_inputs;
-DROP TRIGGER IF EXISTS sessions_user_inputs_setup;
+DROP TRIGGER IF EXISTS sessions_commands_inputs_created;
 
-CREATE TRIGGER sessions_user_inputs
+CREATE TRIGGER sessions_commands_inputs_created
 AFTER INSERT ON sessions
 BEGIN  
+
     INSERT INTO sessions_commands_inputs(session_id, script_id, script_cmd_id, command_seq, command_name, command_value, command_status, updated_from, updated_ip, updated_by, updated_at)
     SELECT new.session_id
          , scripts_commands.script_id
@@ -358,24 +365,43 @@ BEGIN
     ORDER BY scripts_commands.command_seq;
 
     UPDATE sessions
-    SET    session_status = 'waiting'
-    WHERE  sessions.session_id = new.session_id
-    AND NOT EXISTS (SELECT sessions_commands_inputs.session_inp_id
-                    FROM   sessions_commands_inputs
-                    WHERE  sessions_commands_inputs.session_id = new.session_id);
-    -- VALUES (new.session_id, 1, 1);
-END;
+    SET    script_commands = (SELECT COUNT(*)
+                              FROM   scripts_commands
+							  WHERE  script_id = new.script_id)
+    WHERE  sessions.session_id = new.session_id;
 
-CREATE TRIGGER sessions_user_inputs_setup
-AFTER UPDATE ON sessions_commands_inputs
-BEGIN  
     UPDATE sessions
     SET    session_status = 'waiting'
     WHERE  sessions.session_id = new.session_id
     AND NOT EXISTS (SELECT sessions_commands_inputs.session_inp_id
                     FROM   sessions_commands_inputs
+                    WHERE  sessions_commands_inputs.session_id = new.session_id);
+
+END;
+
+DROP TRIGGER IF EXISTS sessions_commands_inputs_updated;
+
+CREATE TRIGGER sessions_commands_inputs_updated
+AFTER UPDATE ON sessions_commands_inputs
+BEGIN
+
+    UPDATE sessions_commands_inputs
+    SET    command_status = 'updated'
+    WHERE  sessions_commands_inputs.session_inp_id = new.session_inp_id
+    AND    new.command_value IS NOT NULL;
+    
+    UPDATE sessions
+    SET    session_status = 'waiting'
+         , updated_from = new.updated_from
+         , updated_ip = new.updated_ip
+         , updated_by = new.updated_by
+         , updated_at = new.updated_at
+    WHERE  sessions.session_id = new.session_id
+    AND    session_status = 'created'
+    AND NOT EXISTS (SELECT sessions_commands_inputs.session_inp_id
+                    FROM   sessions_commands_inputs
                     WHERE  sessions_commands_inputs.session_id = new.session_id
-					AND    sessions_commands_inputs.updated_at <= sessions.updated_at);
+                    AND    sessions_commands_inputs.command_status = 'created');
 END;
 
 COMMIT;
