@@ -6,6 +6,7 @@
 #include <time.h>
 
 #include "putty.h"
+#include "network.h"
 #include "terminal.h"
 
 #define DECIMAL 10
@@ -34,8 +35,6 @@
 #define vTerm_KeyValue 2
 #define vTerm_KeyHex 3
 #define vTerm_KeyANSI 4
-
-//#define vTerm_KeyCode_Elements 3
 
 #define vTerm_Sessions_Max 8
 #define vTerm_Session_Offset 14
@@ -134,6 +133,8 @@ typedef struct {
     char Command_Sent[MAX_STRING_LENGTH];
     int Command_Sent_Len;
     char Command_Sent_Cursor_Pos[MAX_STRING_LENGTH];
+    int Command_Sent_Cursor_X;
+    int Command_Sent_Cursor_Y;
     bool Command_Submit_Key;
     bool Command_Wait;
     time_t Command_Wait_Until;
@@ -194,7 +195,7 @@ char vTermCommands[301][13][MAX_STRING_LENGTH];
 
 int vTermCommands_File;
 int vTermLog_File;
-int vTermScreens_File;
+//int vTermScreens_File;
 
 int vTermScreenText_Pos_X;
 int vTermScreenText_Pos_Y;
@@ -204,6 +205,8 @@ int vTerm_Stop;
 FILE *vTermLog_Stream;
 FILE *vTermCapture_Stream;
 FILE* vTermCaptureInputs_Stream;
+
+void vTermSetCommand();
 
 int datetest()
 {
@@ -235,7 +238,7 @@ int datetest()
     return 0;
 }
 
-static uint64_t GetAvailableStackSpace()
+static uint64_t getavailablestackspace()
 {
     volatile uint8_t var;
 
@@ -248,7 +251,7 @@ static uint64_t GetAvailableStackSpace()
         return 0;
     }
 
-    return &var - mbi.AllocationBase;
+return &var - mbi.AllocationBase;
 }
 
 bool file_exists(const char* filename) {
@@ -339,6 +342,44 @@ int instrrev(const char* base, const char* str) {
     return result;
 }
 
+bool beginswith(const char* str, const char* match, bool ignorecase) {
+
+    int pos;
+
+    if (strlen(match) > strlen(str)) return false;
+
+    for (pos = 0; strlen(match)-1; pos++) {
+         
+        if (ignorecase == true) {
+            if (tolower(str[pos]) != tolower(match[pos])) return false;
+        }
+        else {
+            if (str[pos] != match[pos]) return false;
+        }
+    }
+
+    return true;
+}
+
+bool endswith(const char* str, const char* match, bool ignorecase) {
+
+    int pos;
+
+    if (strlen(match) > strlen(str)) return false;
+
+    for (pos = strlen(str) - strlen(match); strlen(str) - 1; pos++) {
+
+        if (ignorecase == true) {
+            if (tolower(str[pos]) != tolower(match[pos])) return false;
+        }
+        else {
+            if (str[pos] != match[pos]) return false;
+        }
+    }
+
+    return true;
+}
+
 char* inttostr(int num)
 {
     char str[MAX_STRING_LENGTH];
@@ -410,6 +451,14 @@ bool isnumeric(const char* str) {
     return has_digits;
 }
 
+void dosleep(int seconds)
+{
+    clock_t goal = (seconds * 1000) + clock();
+
+    while (goal > clock())
+        Sleep(1);
+}
+
 void append_char(char* str, char ch, int max_len) {
 
     int len = strlen(str) + 1;
@@ -461,12 +510,14 @@ char* string_replacechar(char* str, const char* old, const char* new) {
     return str;
 }
 
-int string_split(const char* input, const char delimiter, const int array_size, const int field_size) {
+int string_split(const char* input, const char delimiter, const int array_size, const int field_size, const bool ascii_only) {
 
     int i = 0;
     int j = 0;
     
     int ctr;
+
+    if (strlen(input) <= 0) return 0;
 
     ctr = 0;
 
@@ -498,8 +549,15 @@ int string_split(const char* input, const char delimiter, const int array_size, 
         }
         else {
             
-            if (isascii(input[i]) == true) {
+            if (isascii(input[i])) {
                 String_Array[ctr][j] = input[i];
+            }
+            else if (ascii_only == true) {
+
+                MessageBox(NULL, dupprintf("Fatal Error : Non-ASCII character '%c' found at position '%d' of input string '%s'.\n\nNon-ASCII characters are not supported - exiting program.", input[i], i, input), "Putty Driver", MB_ICONERROR | MB_OK);
+
+                exit(EXIT_FAILURE);
+
             }
             else {
                 String_Array[ctr][j] = ' ';
@@ -517,6 +575,17 @@ int string_split(const char* input, const char delimiter, const int array_size, 
     }
 
     return ctr;
+}
+
+char* mid(const char* pstr, int start, int numchars)
+{
+    char* pnew = malloc(numchars + 1);
+
+    strncpy(pnew, pstr + start, numchars);
+
+    pnew[numchars] = '\0';
+
+    return pnew;
 }
 
 char* ltrim(char* s) {
@@ -562,14 +631,43 @@ void vTermSessionTimeStamp() {
 
 }
 
+char* vTermGetFileName(char* filepath, bool suffix) {
+
+    char filename[MAX_FILENAME_SIZE];
+
+    int len = 0;
+    int pos = -1;
+
+    pos = instrrev(filepath, "\\");
+
+    if (pos >= 0) {
+
+        pos = pos + 1;
+
+        len = strlen(filepath) - pos + 1;
+
+        sprintf(filename, mid(filepath, pos, len), len);
+    }
+    else {
+        strcpy(filename, filepath);
+    }
+
+    if (suffix != true) {
+
+        pos = instrrev(filename, ".");
+
+        if (pos >= 0) filename[pos] = '\0';
+    }
+
+    return filename;
+}
+
 char* vTermSetFileName(char* subfolder, char* filename, char* filesuffix, bool timestamp, bool checkexists) {
 
     char basename[MAX_FILENAME_SIZE];
     char cwdpath[MAX_FILENAME_SIZE];
     char filepath[MAX_FILENAME_SIZE];
     char folder[MAX_FILENAME_SIZE];
-
-    //char datetime[MAX_STRING_LENGTH];
 
     int pos = -1;
 
@@ -589,14 +687,10 @@ char* vTermSetFileName(char* subfolder, char* filename, char* filesuffix, bool t
             sprintf(basename, "%s", vterm_hostname);
         }
     }
-
+    
     stat(basename, &buffer);
 
     pos = instrrev(basename, "\\");
-
-    if (pos < 0) {
-        pos = instrrev(basename, "//");
-    }
 
     if (pos >= 0) {
 
@@ -663,7 +757,7 @@ char* vTermSetFileName(char* subfolder, char* filename, char* filesuffix, bool t
 
         if ((checkexists == true) && (stat(filepath, &buffer) == 0)) {
 
-            MessageBox(NULL, dupprintf("Fatal Error : Log file '%s' already exists #2 - exiting program.", filepath), "Putty Driver", MB_ICONERROR | MB_OK);
+            MessageBox(NULL, dupprintf("Fatal Error : Log file '%s' already exists #3 - exiting program.", filepath), "Putty Driver", MB_ICONERROR | MB_OK);
 
             exit(EXIT_FAILURE);
 
@@ -671,15 +765,21 @@ char* vTermSetFileName(char* subfolder, char* filename, char* filesuffix, bool t
 
         if (timestamp == true) {
 
-            //time_t now = time(NULL);
+            if (instr(basename, vTerm.SessionTimeStamp, 0) >= 0)
+                snprintf(filepath, sizeof(filepath), "%s\\%s", folder, basename);
+            else
+                snprintf(filepath, sizeof(filepath), "%s\\%s_%s", folder, basename, vTerm.SessionTimeStamp);           
 
-            //strftime(datetime, 20, "%Y%m%d_%H%M%S", localtime(&now));
-
-            //snprintf(filepath, sizeof(filepath), "%s\\%s_%s.%s", folder, basename, datetime, filesuffix);
-            snprintf(filepath, sizeof(filepath), "%s\\%s_%s.%s", folder, basename, vTerm.SessionTimeStamp, filesuffix);           
         }
         else {
-            snprintf(filepath, sizeof(filepath), "%s\\%s.%s", folder, basename, filesuffix);
+            snprintf(filepath, sizeof(filepath), "%s\\%s", folder, basename);
+        }
+
+        if (filesuffix != NULL) {
+
+            if (!(endswith(filepath, dupprintf(".%s", filesuffix), true) == true)) {
+                append_string(filepath, dupprintf(".%s", filesuffix), MAX_BUFFER_SIZE);
+            }
         }
     }
 
@@ -688,13 +788,20 @@ char* vTermSetFileName(char* subfolder, char* filename, char* filesuffix, bool t
 
 void vTermInitialiseLogs() {
 
-   // char datetime[MAX_STRING_LENGTH];
+    char cwdpath[MAX_FILENAME_SIZE];
 
     if (vterm_nolog != true) {
 
+        if (instrrev(vterm_log_file, "\\") < 0) {
+
+            getcwd(cwdpath, MAX_FILENAME_SIZE);
+
+            snprintf(vterm_log_file, sizeof(cwdpath), "%s\\Logs\\%s", cwdpath, dupstr(vterm_log_file));
+        }
+
         if (file_exists(vterm_log_file) == true) {
 
-            MessageBox(NULL, dupprintf("Fatal Error : Log file '%s' already exists #3 - exiting program.", vterm_log_file), "Putty Driver", MB_ICONERROR | MB_OK);
+            MessageBox(NULL, dupprintf("Fatal Error : Log file '%s' already exists #4 - exiting program.", vterm_log_file), "Putty Driver", MB_ICONERROR | MB_OK);
 
             exit(EXIT_FAILURE);
 
@@ -710,10 +817,6 @@ void vTermInitialiseLogs() {
             else {
                 fprintf(vTermLog_Stream, "SessionID|Command_Seq|Function_Name|Function Offset|Actual_New|Expected_Previous|Screen_Cursor.Y|Screen_Cursor.X|Screen_Cursor_Prev_Y|Screen_Cursor_Prev_X|Command_Current_Seq|Screen_Command_Seq_From\n");
             }
-
-            //time_t now = time(NULL);
-
-            //strftime(datetime, 20, "%Y-%m-%d %H:%M:%S", localtime(&now));
 
             fprintf(vTermLog_Stream, "%d|%s|Starting\n", vTerm.Session_ID, vTerm.SessionTimeStamp);
 
@@ -734,13 +837,12 @@ void vTermWriteToLog( char* FunctionName, char* Actual_Data, char* Expected_Data
 
     char log_data[MAX_RAWDATA_LEN];
 
-    //if (strncmp(FunctionName, "PuTTY",5) == 0 && vterm_nolog != true) {
     if (vterm_nolog != true) {
 
         if (vTermLog_Stream != NULL) {
 
             if (vTermLog_Execution == true) {
-                //sprintf(log_data, "%llu|%d|%d|%s|%s|%s|%d|%d|%d|%d|%d|%d", GetAvailableStackSpace(), vterm_sessionid, vTerm.Command_Seq, FunctionName, Actual_Data, Expected_Data, vTerm.Screen_Cursor.Y, vTerm.Screen_Cursor.X, vTerm.Screen_Cursor_Prev_Y, vTerm.Screen_Cursor_Prev_X, vTerm.Command_Current_Seq, vTerm.Screen_Command_Seq_From);
+                //sprintf(log_data, "%llu|%d|%d|%s|%s|%s|%d|%d|%d|%d|%d|%d", getavailablestackspace(), vterm_sessionid, vTerm.Command_Seq, FunctionName, Actual_Data, Expected_Data, vTerm.Screen_Cursor.Y, vTerm.Screen_Cursor.X, vTerm.Screen_Cursor_Prev_Y, vTerm.Screen_Cursor_Prev_X, vTerm.Command_Current_Seq, vTerm.Screen_Command_Seq_From);
                 sprintf(log_data, "%d|%d|%s|%s|%s|%d|%d|%d|%d|%d|%d", vterm_sessionid, vTerm.Command_Seq, FunctionName, Actual_Data, Expected_Data, vTerm.Screen_Cursor.Y, vTerm.Screen_Cursor.X, vTerm.Screen_Cursor_Prev_Y, vTerm.Screen_Cursor_Prev_X, vTerm.Command_Current_Seq, vTerm.Screen_Command_Seq_From);
             }
             else {
@@ -806,7 +908,7 @@ void ReadKeyCodesFromFile() {
 
     while (fgets(input, sizeof(input), stream)) {
 
-        num = string_split(input, '|', vTerm_KeyANSI + 1, MAX_STRING_LENGTH);
+        num = string_split(input, '|', vTerm_KeyANSI + 1, MAX_STRING_LENGTH, false);
 
         if (num <= 0) {
 
@@ -864,7 +966,7 @@ void ReadCommandsFromFile() {
         return;
     }
 
-    if (file_exists(vterm_script_file) != true) {
+    if ((file_exists(vterm_script_file) != true) && (instrrev(vterm_script_file, "\\") < 0)) {
 
         getcwd(cwdpath, MAX_FILENAME_SIZE);
 
@@ -893,9 +995,7 @@ void ReadCommandsFromFile() {
 
         if (strlen(input) > vTerm_Command_Elements) {
 
-            vTerm.Command_Seq_Max++;
-
-            num = string_split(input, '|', vTerm_Command_Elements, MAX_STRING_LENGTH);
+            num = string_split(input, '|', vTerm_Command_Elements, MAX_STRING_LENGTH, true);
 
             if (num != vTerm_Command_Elements) {
 
@@ -908,19 +1008,41 @@ void ReadCommandsFromFile() {
             }
             else {
 
-                strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Command_Seq_pos], ifnull(String_Array[vTerm_Command_Seq_pos], "0"));
-                strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Expected_Screen_Identifier_pos], ifnull(String_Array[vTerm_Expected_Screen_Identifier_pos], ""));
-                strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Expected_Screen_Identifier_At_pos], ifnull(String_Array[vTerm_Expected_Screen_Identifier_At_pos], ""));
-                strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Screen_Capture_OnOff_pos], ifnull(String_Array[vTerm_Screen_Capture_OnOff_pos], ""));
-                strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Expected_Command_Prompt_pos], ifnull(String_Array[vTerm_Expected_Command_Prompt_pos], ""));
-                strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Expected_Command_Prompt_At_pos], ifnull(String_Array[vTerm_Expected_Command_Prompt_At_pos], ""));
-                strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Expected_Input_Cursor_At_pos], ifnull(String_Array[vTerm_Expected_Input_Cursor_At_pos], ""));
-                strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Command_Send_pos], ifnull(String_Array[vTerm_Command_Send_pos], ""));
-                strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Command_Input_Hidden_pos], ifnull(String_Array[vTerm_Command_Input_Hidden_pos], ""));
-                strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Command_Submit_Key_pos], ifnull(String_Array[vTerm_Command_Submit_Key_pos], ""));
-                strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Command_Send_Pause_pos], ifnull(String_Array[vTerm_Command_Send_Pause_pos], "0"));
-                strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_DBRecord_Script_Cmd_ID_pos], ifnull(String_Array[vTerm_DBRecord_Script_Cmd_ID_pos], "0"));
+                vTerm.Command_Seq = atoi(ifnull(String_Array[vTerm_Command_Seq_pos], "0"));
 
+                if (vTerm.Command_Seq <= 0) {
+                    // Script default params - ignore.
+                }
+                else {
+                    
+                    vTerm.Command_Seq_Max++;
+                
+                    if (vTerm.Command_Seq != vTerm.Command_Seq_Max) {
+
+                        MessageBox(NULL, dupprintf("Fatal Error : 'Command_Seq' data mismatch reading Script Commands File '%s' line %d - exiting program.", vterm_script_file, vTerm.Command_Seq_Max + 1), "Putty Driver", MB_ICONERROR | MB_OK);
+
+                        fclose(stream);
+
+                        exit(EXIT_FAILURE);
+
+                    }
+                    
+                    strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Command_Seq_pos], ifnull(String_Array[vTerm_Command_Seq_pos], "0"));
+                    strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Expected_Screen_Identifier_pos], ifnull(String_Array[vTerm_Expected_Screen_Identifier_pos], ""));
+                    strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Expected_Screen_Identifier_At_pos], ifnull(String_Array[vTerm_Expected_Screen_Identifier_At_pos], ""));
+                    strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Screen_Capture_OnOff_pos], ifnull(String_Array[vTerm_Screen_Capture_OnOff_pos], ""));
+                    strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Expected_Command_Prompt_pos], ifnull(String_Array[vTerm_Expected_Command_Prompt_pos], ""));
+                    strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Expected_Command_Prompt_At_pos], ifnull(String_Array[vTerm_Expected_Command_Prompt_At_pos], ""));
+                    strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Expected_Input_Cursor_At_pos], ifnull(String_Array[vTerm_Expected_Input_Cursor_At_pos], ""));
+                    strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Command_Send_pos], ifnull(String_Array[vTerm_Command_Send_pos], ""));
+                    strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Command_Input_Hidden_pos], ifnull(String_Array[vTerm_Command_Input_Hidden_pos], ""));
+                    strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Command_Submit_Key_pos], ifnull(String_Array[vTerm_Command_Submit_Key_pos], ""));
+                    strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Command_Send_Pause_pos], ifnull(String_Array[vTerm_Command_Send_Pause_pos], "0"));
+                    strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_DBRecord_Script_Cmd_ID_pos], ifnull(String_Array[vTerm_DBRecord_Script_Cmd_ID_pos], "0"));
+
+                    vTermSetCommand();
+
+                } 
             }
         }
     }
@@ -930,36 +1052,102 @@ void ReadCommandsFromFile() {
 
 void vTermOpenSessionFiles() {
 
+    char cwdpath[MAX_FILENAME_SIZE];
+
+    char capture_file[MAX_FILENAME_SIZE];
+    char capture_script_file[MAX_FILENAME_SIZE];
+
+    char host_name[MAX_FILENAME_SIZE];
+    char script_name[MAX_FILENAME_SIZE];
+
+    char* host;
+
     if (vTermLog_Execution == true) {
         vTermWriteToLog("vTermOpenSessionFiles|Start", NULL, NULL);
     }
 
-    char l_name[MAX_FILENAME_SIZE];
-
     if (vterm_nocapture != true) {
 
-        if (strlen(vterm_inputs_file) > 0) {
+        getcwd(cwdpath, MAX_FILENAME_SIZE);
 
-            if (file_exists(vterm_inputs_file) == true) {
+        host = strtok(dupprintf("%s", vterm_hostname), ".");
 
-                MessageBox(NULL, dupprintf("Fatal Error : Session inputs capture file '%s' already exists - exiting program.", vterm_capture_file), "Putty Driver", MB_ICONERROR | MB_OK);
+        if (host != NULL)
+            strcpy(host_name, host);
+        else
+            strcpy(host_name, vterm_hostname);
 
-                exit(EXIT_FAILURE);
+        strcpy(script_name, vTermGetFileName(vterm_script_file, false));
 
+        if (!(vterm_nolog == true)) {
+
+            if (instrrev(vterm_log_file, "\\") < 0) {
+
+                if (strlen(vterm_log_file) <= 0 ||
+                    stricmp(vterm_log_file, "yes") == 0 ||
+                    stricmp(vterm_log_file, "on") == 0) {
+
+                    if (vterm_sessionid > 0) {
+                        strcpy(vterm_log_file, dupprintf("%s_%d_%s", host_name, vterm_sessionid, script_name, false));
+                    }
+                    else if (vterm_script == true) {
+
+                        if (instr(vterm_script_file, host_name, true) >= 0)
+                            strcpy(vterm_log_file, script_name);
+                        else
+                            strcpy(vterm_log_file, dupprintf("%s_%s", host_name, script_name));
+
+                    }
+                    else
+                        strcpy(vterm_log_file, dupprintf("%s_new_script", host_name));
+                }
             }
 
-            vTermCaptureInputs_Stream = fopen(vterm_inputs_file, "w");
+            if (strlen(vterm_log_file) > 0) {
 
-            if (vTermCaptureInputs_Stream == NULL) {
+                if (instrrev(vterm_log_file, "\\") < 0) {
+                    strcpy(vterm_log_file, dupstr(vTermSetFileName("Logs", dupstr(vterm_log_file), "log", true, false)));
+                }
 
-                MessageBox(NULL, dupprintf("Fatal Error : Session input inputs capture file '%s' create failed - exiting program.", vterm_capture_file), "Putty Driver", MB_ICONERROR | MB_OK);
+                if (file_exists(vterm_log_file) == true) {
 
-                exit(EXIT_FAILURE);
+                    MessageBox(NULL, dupprintf("Fatal Error : Session screens capture file '%s' already exists - exiting program.", vterm_log_file), "Putty Driver", MB_ICONERROR | MB_OK);
 
+                    exit(EXIT_FAILURE);
+
+                }
+            }
+
+            vTermInitialiseLogs();
+        }
+
+        if (instrrev(vterm_capture_file, "\\") < 0) {
+
+            if (strlen(vterm_capture_file) <= 0 ||
+                stricmp(vterm_capture_file, "yes") == 0 ||
+                stricmp(vterm_capture_file, "on") == 0) {
+
+                if (vterm_sessionid > 0) {
+                    strcpy(vterm_capture_file, dupprintf("%s_%d_%s", host_name, vterm_sessionid, script_name));
+                }
+                else if (vterm_script == true) {
+
+                    if (instr(script_name, host_name, true) >= 0)
+                        strcpy(vterm_capture_file, script_name);
+                    else
+                        strcpy(vterm_capture_file, dupprintf("%s_%s", host_name, script_name));
+
+                }
+                else
+                    strcpy(vterm_capture_file, dupprintf("%s_new_script", host_name));
             }
         }
 
         if (strlen(vterm_capture_file) > 0) {
+
+            if (instrrev(vterm_capture_file, "\\") < 0) {
+                strcpy(vterm_capture_file, dupstr(vTermSetFileName("Capture", dupstr(vterm_capture_file), "log", true, false)));
+            }
 
             if (file_exists(vterm_capture_file) == true) {
 
@@ -980,21 +1168,45 @@ void vTermOpenSessionFiles() {
             }
         }
 
+        if (vterm_script != true) {
+
+            strcpy(capture_script_file, vTermGetFileName(vterm_capture_file, false));
+
+            if (instrrev(capture_script_file, "\\") < 0) {
+                strcpy(capture_script_file, dupstr(vTermSetFileName("Capture", dupstr(capture_script_file), "inputs", false, false)));
+            }
+
+            if (file_exists(capture_script_file) == true) {
+
+                MessageBox(NULL, dupprintf("Fatal Error : Session inputs capture file '%s' already exists - exiting program.", capture_script_file), "Putty Driver", MB_ICONERROR | MB_OK);
+
+                exit(EXIT_FAILURE);
+
+            }
+
+            vTermCaptureInputs_Stream = fopen(capture_script_file, "w");
+
+            if (vTermCaptureInputs_Stream == NULL) {
+
+                MessageBox(NULL, dupprintf("Fatal Error : Session inputs capture file '%s' create failed - exiting program.", capture_script_file), "Putty Driver", MB_ICONERROR | MB_OK);
+
+                exit(EXIT_FAILURE);
+
+            }
+        }
+
         fprintf(vTermCapture_Stream, "<?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>\n");
         fprintf(vTermCapture_Stream, "<events_log xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"">\n");
 
-fprintf(vTermCapture_Stream, dupprintf("<user>%s</user>\n", get_username()));
-fprintf(vTermCapture_Stream, dupprintf("<server>%s</server>\n", vterm_hostname));
-fprintf(vTermCapture_Stream, dupprintf("<script>%s</script>\n", vterm_script_file));
-/* fprintf(vTermCapture_Stream, dupprintf("<stack_space>%llu</stack_space>\n", GetAvailableStackSpace())); */
-fprintf(vTermCapture_Stream, dupprintf("<process_start>%s</process_start>\n", vTerm.SessionTimeStamp));
+        fprintf(vTermCapture_Stream, dupprintf("<user>%s</user>\n", get_username()));
+        fprintf(vTermCapture_Stream, dupprintf("<session_id>%d</session_id>\n", vterm_sessionid));
 
-fflush(vTermCapture_Stream);
-        }
-
-        if (vTermLog_Execution == true) {
-            vTermWriteToLog("vTermOpenSessionFiles|Finish", NULL, NULL);
-        }
+        fflush(vTermCapture_Stream);
+    }
+    
+    if (vTermLog_Execution == true) {
+        vTermWriteToLog("vTermOpenSessionFiles|Finish", NULL, NULL);
+    }
 }
 
 void vTermWriteSessionToFile() {
@@ -1012,6 +1224,17 @@ void vTermWriteSessionToFile() {
             MessageBox(NULL, dupprintf("Fatal Error : Session commands file '%s' create failed - exiting program.", vterm_capture_file), "Putty Driver", MB_ICONERROR | MB_OK);
 
             exit(EXIT_FAILURE);
+        }
+
+        if (vTerm.Screen_Command_Seq_From <= 1) {
+
+            fprintf(vTermCapture_Stream, dupprintf("<server_hostname>%s</server_hostname>\n", vterm_hostname));
+            fprintf(vTermCapture_Stream, dupprintf("<server_ip>%s</server_ip>\n", vterm_host_ip));
+            fprintf(vTermCapture_Stream, dupprintf("<server_conntype>%s</server_conntype>\n", vterm_host_conntype));
+            fprintf(vTermCapture_Stream, dupprintf("<server_connport>%d</server_connport>\n", vterm_host_connport));
+            fprintf(vTermCapture_Stream, dupprintf("<script>%s</script>\n", vterm_script_file));
+            /* fprintf(vTermCapture_Stream, dupprintf("<stack_space>%llu</stack_space>\n", getavailablestackspace())); */
+            fprintf(vTermCapture_Stream, dupprintf("<process_start>%s</process_start>\n", vTerm.SessionTimeStamp));
 
         }
 
@@ -1019,24 +1242,24 @@ void vTermWriteSessionToFile() {
 
         if (vTerm.Screen_Capture_Pending == true) {
 
-            fprintf(vTermCapture_Stream, "<Commands_Processed_Screen>%d%c%d%c%d%c</Commands_Processed_Screen>\n", vterm_sessionid, DBDelimiter, vTerm.Screen_Capture_Command_Seq_From, DBDelimiter, vTerm.Screen_Command_Seq_To, DBDelimiter);
+            fprintf(vTermCapture_Stream, "<commands_processed_screen>%d%c%d%c</commands_processed_screen>\n", vTerm.Screen_Capture_Command_Seq_From, DBDelimiter, vTerm.Screen_Command_Seq_To, DBDelimiter);
 
             vTerm.Screen_Capture_Command_Seq_From = vTerm.Screen_Command_Seq_To + 1;
 
             sprintf(log_data, "%s", vTerm.Screen);
 
-            fprintf(vTermCapture_Stream, "<Screen>\n%s\n</Screen>\n", rtrim(string_replacechar(vTerm.Screen, '\r', ' ')));
+            fprintf(vTermCapture_Stream, "<screen>\n%s\n</screen>\n", rtrim(string_replacechar(vTerm.Screen, '\r', ' ')));
         }
 
         fflush(vTermCapture_Stream);
 
-        if (vTerm.Command_Seq > 8) {
-            vTerm.Command_Seq = vTerm.Command_Seq;
-        }
-
         if (vTermCaptureInputs_Stream != NULL) {
 
-            fprintf(vTermCaptureInputs_Stream, "%s\n", vTerm.Commands_Input);
+            if (vTerm.Screen_Command_Seq_From <= 1) {
+                fprintf(vTermCaptureInputs_Stream, dupprintf("0|%s|%s|%s||%s|%s|%d|||||\n", ifnull(vterm_script_file, "New Script"), string_replacechar(dupstr(vterm_hostname), '.', '_'), vterm_hostname, vterm_host_ip, vterm_host_conntype, vterm_host_connport));
+            }
+
+            fprintf(vTermCaptureInputs_Stream, "%s\n", rtrim(string_replacechar(vTerm.Commands_Input, '\r', ' ')));
 
             fflush(vTermCaptureInputs_Stream);
         }
@@ -1083,10 +1306,10 @@ void vTermCloseSessionLogs() {
     if (vTermLog_Stream != NULL) {
 
         if (vTerm.Command_Seq_Max > 0) {
-            fprintf(vTermLog_Stream, "%d|%s|Processed %d of %d Commands\n", vTerm.Session_ID, vTerm.SessionTimeStamp, vTerm.Command_Seq - 1, vTerm.Command_Seq_Max);
+            fprintf(vTermLog_Stream, "%d|%s|Processed %d of %d Commands\n", vTerm.Session_ID, vTerm.SessionTimeStamp, vTerm.Screen_Command_Seq_To, vTerm.Command_Seq_Max);
         }
         else {
-            fprintf(vTermLog_Stream, "%d|%s|Processed %d Commands\n", vTerm.Session_ID, vTerm.SessionTimeStamp, vTerm.Command_Seq - 1);
+            fprintf(vTermLog_Stream, "%d|%s|Processed %d Commands\n", vTerm.Session_ID, vTerm.SessionTimeStamp, vTerm.Screen_Command_Seq_To);
         }
 
         fclose(vTermLog_Stream);
@@ -1182,7 +1405,7 @@ void vTermSessionGetScreen( int GetScreen) {
 
     if (GetScreen == true) {
 
-        vTerm.Command_Mismatch = false;
+        //vTerm.Command_Mismatch = false;
             
         vTerm.Screen_Get = true;
             
@@ -1308,8 +1531,8 @@ void vTermSubmitKey( char* CmdKey, bool AnsiSeq) {
                         strncpy(vTerm.Submit_Key_ANSI, vTermKeyCodes[l_ptr][vTerm_KeyANSI], strlen(vTermKeyCodes[l_ptr][vTerm_KeyANSI]));
                         strncpy(vTerm.Submit_Key_Value, vTermKeyCodes[l_ptr][vTerm_KeyValue], strlen(vTermKeyCodes[l_ptr][vTerm_KeyValue]));
 
-                        //vTerm.Submit_Key_Len = strlen(vTerm.Submit_Key_ANSI);
-                        vTerm.Submit_Key_Len = strlen(vTerm.Submit_Key_Value);
+                        vTerm.Submit_Key_Len = strlen(vTerm.Submit_Key_ANSI);
+                        //vTerm.Submit_Key_Len = strlen(vTerm.Submit_Key_Value);
 
                     }
 
@@ -1356,25 +1579,27 @@ void vTermSetCommand() {
 
     vTerm.Command_Auto = false;
 
-    strcpy(vTerm.Command_Screen_Identifier, vTermGetCommand( vTerm_Expected_Screen_Identifier_pos, false));
-    strcpy(vTerm.Command_Screen_Identifier_Pos, vTermGetCommand( vTerm_Expected_Screen_Identifier_At_pos, false));
+    strcpy(vTerm.Command_Screen_Identifier, vTermGetCommand(vTerm_Expected_Screen_Identifier_pos, false));
+    strcpy(vTerm.Command_Screen_Identifier_Pos, vTermGetCommand(vTerm_Expected_Screen_Identifier_At_pos, false));
 
-    strcpy(vTerm.Command_Prompt_Expected, vTermGetCommand( vTerm_Expected_Command_Prompt_pos, false));
-    strcpy(vTerm.Command_Prompt_Expected_Pos, vTermGetCommand( vTerm_Expected_Command_Prompt_At_pos, false));
+    strcpy(vTerm.Command_Prompt_Expected, vTermGetCommand(vTerm_Expected_Command_Prompt_pos, false));
+    strcpy(vTerm.Command_Prompt_Expected_Pos, vTermGetCommand(vTerm_Expected_Command_Prompt_At_pos, false));
 
-    strcpy(vTerm.Command_Send_Expected_Cursor, vTermGetCommand( vTerm_Expected_Input_Cursor_At_pos, false));
+    //MessageBox(NULL, dupprintf("%d %d %s %s", vTerm.Command_Seq, vTerm_Expected_Command_Prompt_pos, vTermCommands[vTerm.Command_Seq][vTerm_Expected_Command_Prompt_pos], vTerm.Command_Prompt_Expected), "Putty Driver", MB_ICONERROR | MB_OK);
+
+    strcpy(vTerm.Command_Send_Expected_Cursor, vTermGetCommand(vTerm_Expected_Input_Cursor_At_pos, false));
 
     strcpy(vTerm.Command_Send, vTermGetCommand( vTerm_Command_Send_pos, false));
 
-    vTerm.Command_Send_Pause = atoi(vTermGetCommand( vTerm_Command_Send_Pause_pos, true));
+    if (isnumeric(vTermGetCommand(vTerm_Command_Send_Pause_pos, true)) == true) vTerm.Command_Send_Pause = atoi(vTermGetCommand(vTerm_Command_Send_Pause_pos, true));
 
-    vTerm.Command_Script_DB_ID = atol(vTermGetCommand( vTerm_DBRecord_Script_Cmd_ID_pos, true));
+    if (isnumeric(vTermGetCommand(vTerm_DBRecord_Script_Cmd_ID_pos, true)) == true) vTerm.Command_Script_DB_ID = atol(vTermGetCommand(vTerm_DBRecord_Script_Cmd_ID_pos, true));
 
-    strcpy(vTerm.Command_Input_Hidden, vTermGetCommand( vTerm_Command_Input_Hidden_pos, false));
+    strcpy(vTerm.Command_Input_Hidden, vTermGetCommand(vTerm_Command_Input_Hidden_pos, false));
 
-    strcpy(vTerm.Screen_Capture, vTermGetCommand( vTerm_Screen_Capture_OnOff_pos, false));
+    strcpy(vTerm.Screen_Capture, vTermGetCommand(vTerm_Screen_Capture_OnOff_pos, false));
 
-    strcpy(vTerm.Submit_Key, vTermGetCommand( vTerm_Command_Submit_Key_pos, false));
+    strcpy(vTerm.Submit_Key, vTermGetCommand(vTerm_Command_Submit_Key_pos, false));
 
     vTerm.Command_Screen_Identifier_Len = strlen(vTerm.Command_Screen_Identifier);
 
@@ -1405,12 +1630,12 @@ void vTermSetCommand() {
 
     if (l_exp_xy != NULL) {
 
-        if (strcmp(l_exp_xy, "*") != 0) vTerm.Command_Prompt_Expected_Pos_Y = atoi(l_exp_xy);
+        if (isnumeric(l_exp_xy) == true) vTerm.Command_Prompt_Expected_Pos_Y = atoi(l_exp_xy);
 
         l_exp_xy = strtok(NULL, ",");
 
         if (l_exp_xy != NULL) {
-            if (strcmp(l_exp_xy, "*") != 0) vTerm.Command_Prompt_Expected_Pos_X = atoi(l_exp_xy);
+            if (isnumeric(l_exp_xy) == true) vTerm.Command_Prompt_Expected_Pos_X = atoi(l_exp_xy);
         }
     }
 
@@ -1421,12 +1646,12 @@ void vTermSetCommand() {
 
     if (l_exp_xy != NULL) {
 
-        if (strcmp(l_exp_xy, "*") != 0) vTerm.Command_Send_Expected_Cursor_Y = atoi(l_exp_xy);
+        if (isnumeric(l_exp_xy) == true) vTerm.Command_Send_Expected_Cursor_Y = atoi(l_exp_xy);
 
         l_exp_xy = strtok(NULL, ",");
 
         if (l_exp_xy != NULL) {
-            if (strcmp(l_exp_xy, "*") != 0) vTerm.Command_Send_Expected_Cursor_X = atoi(l_exp_xy);
+            if (isnumeric(l_exp_xy) == true) vTerm.Command_Send_Expected_Cursor_X = atoi(l_exp_xy);
         }
     }
 
@@ -1495,8 +1720,6 @@ void vTermCommandMismatch( char* MismatchType, char* Actual_Pos, char* Expected_
         vTermWriteToLog(dupprintf("vTermCommandMismatch - %s|Start", MismatchType), Actual_Pos, Expected_Pos);
     }
 
-    strcpy(vTerm.Command_Prompt_OK, "No");
-
     vTermSessionSetValue( vTerm.Command_Prompt_OK, 0, 0);
 
     if (vTerm.Screen_Requested_Seq < vTerm.Command_Seq) {
@@ -1508,14 +1731,16 @@ void vTermCommandMismatch( char* MismatchType, char* Actual_Pos, char* Expected_
         strcpy(vTerm.Command_Mismatch_Pos_Expected, Expected_Pos);
         strcpy(vTerm.Command_Mismatch_Pos_Actual, Actual_Pos);
 
-        if (!strstr(MismatchType, "Position Mismatch") == NULL) {
-
-            vTerm.Command_Mismatch = true;
+        if (strstr(MismatchType, "Screen Cursor") == NULL) {
 
             vTermWriteToLog(dupprintf("vTermCommandMismatch|%s", MismatchType), Actual_Pos, Expected_Pos);
 
+            vTerm.Command_Mismatch = true;
+
         }
     }
+
+    strcpy(vTerm.Command_Prompt_OK, "No");
 
     if (vTermLog_Execution == true) {
         vTermWriteToLog(dupprintf("vTermCommandMismatch - %s|Finish", MismatchType), Actual_Pos, Expected_Pos);
@@ -1523,9 +1748,6 @@ void vTermCommandMismatch( char* MismatchType, char* Actual_Pos, char* Expected_
 }
 
 void SendChars(long Hwnd, char* sChars, bool SysKey) {
-
-    char send;
-    long ret;
 
     if (vTermLog_Execution == true) {
         vTermWriteToLog("SendChars|", sChars, NULL);
@@ -1537,17 +1759,82 @@ void SendChars(long Hwnd, char* sChars, bool SysKey) {
     else {
 
         for (int i = 0; sChars[i] != '\0'; i++) {
-
-            send = sChars[i];
-
-            if (SysKey == true) {
-                SendMessage((HWND)Hwnd, WM_KEYDOWN, (WPARAM)sChars[i], (LPARAM)0L);
-            }
-            else {
-                SendMessage((HWND)Hwnd, WM_CHAR, (WPARAM)sChars[i], (LPARAM)0L);
-            }
+            SendMessage((HWND)Hwnd, WM_CHAR, (WPARAM)sChars[i], (LPARAM)0L);
         }
     }
+}
+
+bool vTermInputCommandProcessed(char* CalledFrom) {
+
+    bool l_proc;
+
+    int l_found_row;
+    int l_found_col;
+
+    char l_screen[MAX_STRING_LENGTH];
+
+    if (vterm_screen_speed > 0) Sleep(vterm_screen_speed);
+
+    if ((strcmp(vTerm.Command_Input_Hidden, "Yes") == 0) || (strlen(vTerm.Command_Processed) <= 0)) {
+        return true;
+    }
+
+    l_found_row = vTerm.Command_Sent_Cursor_Y - vTermScreenWrapAdjust(vTerm.Command_Sent_Cursor_Y - 1);
+
+    //l_found_col = instr(vTerm.Screen_Array[l_found_row], rtrim(dupstr(vTerm.Command_Processed)), 0);
+    l_found_col = instr(vTerm.Screen_Array[l_found_row], rtrim(dupstr(vTerm.Command_Processed)), vTerm.Command_Sent_Cursor_X);
+
+    if (l_found_row >= 0 && l_found_col >= 0) {
+
+        if (vTermLog_Execution == true) {
+            vTermWriteToLog(dupprintf("vTermInputCommandProcessed #1|%s", CalledFrom), dupprintf("%s %s", vTerm.Command_Sent_Cursor_Pos, vTerm.Screen_Array[l_found_row]), dupprintf("%d,%d %s", l_found_row, l_found_col, vTerm.Command_Processed));
+        }
+
+        return true;
+    }
+
+    //l_found_col = instr(String_Array[l_found_row], rtrim(dupstr(vTerm.Command_Processed)), 0);
+    l_found_col = instr(String_Array[l_found_row], rtrim(dupstr(vTerm.Command_Processed)), vTerm.Command_Sent_Cursor_X);
+
+    if (l_found_row >= 0 && l_found_col >= 0) {
+
+        if (vTermLog_Execution == true) {
+            vTermWriteToLog(dupprintf("vTermInputCommandProcessed #2|%s", CalledFrom), dupprintf("%s %s", vTerm.Command_Sent_Cursor_Pos, String_Array[l_found_row]), dupprintf("%d,%d %s", l_found_row, l_found_col, vTerm.Command_Processed));
+        }
+
+        memset(vTerm.Screen, 0, sizeof(vTerm.Screen));
+
+        strcpy(vTerm.Screen, vTerm.Screen_New);
+
+        vTerm.Screen_Len = vTerm.Screen_New_Len;
+
+        memcpy(vTerm.Screen_Array, String_Array, sizeof(String_Array));
+
+        vTerm.Screen_Array_Rows = vTerm.Screen_New_Rows;
+
+        vTermSessionSetValue(vTerm.Screen, vTerm_Screen_pos, vTerm.Command_Seq);
+        vTermSessionSetValue(vTerm.Screen_Command_Seq_From, vTerm_Screen_Command_Seq_pos, vTerm.Command_Seq);
+
+        return true;
+    }
+    else if (l_found_row >= 0) {
+
+        if (vTermLog_Execution == true) {
+
+            vTermWriteToLog(dupprintf("vTermInputCommandProcessed #3a|%s - Previous Screen", CalledFrom), dupprintf("%s %s", vTerm.Command_Sent_Cursor_Pos, vTerm.Screen_Array[l_found_row]), dupprintf("%d,%d %s", l_found_row, l_found_col, vTerm.Command_Processed));
+            vTermWriteToLog(dupprintf("vTermInputCommandProcessed #3b|%s - Updated Screen", CalledFrom), dupprintf("%s %s", vTerm.Command_Sent_Cursor_Pos, String_Array[l_found_row]), dupprintf("%d,%d %s", l_found_row, l_found_col, vTerm.Command_Processed));
+        }
+    }
+    else {
+
+        if (vTermLog_Execution == true) {
+
+            vTermWriteToLog(dupprintf("vTermInputCommandProcessed #4a|%s - Previous Screen", CalledFrom), dupprintf("%s %s", vTerm.Command_Sent_Cursor_Pos, vTerm.Screen), dupprintf("-1,-1 %s", vTerm.Command_Processed));
+            vTermWriteToLog(dupprintf("vTermInputCommandProcessed #4b|%s - Updated Screen", CalledFrom), dupprintf("%s %s", vTerm.Command_Sent_Cursor_Pos, vTerm.Screen_New), dupprintf("-1,-1 %s", vTerm.Command_Processed));
+        }
+    }
+
+    return false;
 }
 
 void vTermCommandSend( bool FullCommand) {
@@ -1556,6 +1843,19 @@ void vTermCommandSend( bool FullCommand) {
 
     if (vTermLog_Execution == true) {
         vTermWriteToLog("vTermCommandSend|Start", NULL, NULL);
+    }
+
+    l_submit = vTermInputCommandProcessed(dupprintf("vTermCommandSend #1|FullCommand - %s", FullCommand ? "true" : "false"));
+
+    if (!l_submit == true) {
+
+        vTermSessionGetScreen(false);
+
+        if (vTermLog_Execution == true) {
+            vTermWriteToLog("vTermCommandSend|Return", dupprintf("Waiting for command '%s' to process.", vTerm.Command_Processed), NULL);
+        }
+
+        return;
     }
 
     l_submit = false;
@@ -1580,8 +1880,8 @@ void vTermCommandSend( bool FullCommand) {
             vTerm.Command_Send_Pos += 1;
 
             strncat(vTerm.Command_Sent, &vTerm.Command_Send[vTerm.Command_Send_Pos - 1], 1);
-            vTerm.Command_Sent_Len += 1;
 
+            vTerm.Command_Sent_Len += 1;
             vTerm.Command_Send_Buffer_Len -= 1;
 
             char chr[2];
@@ -1620,9 +1920,12 @@ void vTermCommandSend( bool FullCommand) {
 void vTermSendCommand() {
 
     int l_screen_pos;
+
     int l_sid;
+
     int l_act_X;
     int l_act_Y;
+
     int l_exp_X;
     int l_exp_Y;
 
@@ -1690,15 +1993,13 @@ void vTermSendCommand() {
 
                 if (vTerm.Command_Screen_Identifier_Len > 0) {
 
-                    strcpy(vTerm.Screen_Identifier_Pos, vTermScreenTextPosition(vTerm.Command_Screen_Identifier, false));
-
-                    if (strlen(trim(vTerm.Screen_Identifier_Pos)) > 0) {
-                        vTermSessionSetValue( vTerm.Screen_Identifier_Pos, vTerm_Screen_Identifier_At_pos, vTerm.Command_Seq);
-                    }
-
                     if (strstr(vTerm.Screen, vTerm.Command_Screen_Identifier) != NULL) {
 
-                        if (strlen(trim(vTerm.Command_Screen_Identifier_Pos)) > 0) {
+                        strcpy(vTerm.Screen_Identifier_Pos, vTermScreenTextPosition(vTerm.Command_Screen_Identifier, false));
+
+                        if (strlen(trim(vTerm.Screen_Identifier_Pos)) > 0) {
+
+                            vTermSessionSetValue(vTerm.Screen_Identifier_Pos, vTerm_Screen_Identifier_At_pos, vTerm.Command_Seq);
 
                             if (vTerm.Command_Screen_Identifier_Pos_Y < 0 || vTerm.Command_Screen_Identifier_Pos_Y == vTermScreenText_Pos_Y) {
 
@@ -1707,29 +2008,40 @@ void vTermSendCommand() {
                                     vTermSessionSetValue(vTerm.Screen_Identifier_Pos, vTerm_Screen_Identifier_At_pos, vTerm.Command_Seq);
 
                                     if (vTermLog_Execution == true) {
-                                        vTermWriteToLog("Screen Identifier Position Matches OK (Y,X)", vTerm.Screen_Identifier_Pos, vTerm.Command_Screen_Identifier_Pos);
+                                        vTermWriteToLog(dupprintf("Screen Identifier '%s' Position Matches OK (expected at %s)", vTerm.Command_Screen_Identifier, vTerm.Command_Screen_Identifier_Pos), vTerm.Screen_Identifier_Pos, vTerm.Command_Screen_Identifier_Pos);
                                     }
                                 }
                                 else {
 
                                     l_proc = false;
 
-                                    vTerm.Screen_Identifier_Pos[0] = '\0';
+                                    if (vTermScreenText_Pos_Y >= 0) {
 
-                                    if (vTermLog_Execution == true) {
-                                        vTermCommandMismatch("Screen Identifier Position Mismatch (X)", dupprintf("%d", vTermScreenText_Pos_X), dupprintf("%d", vTerm.Command_Screen_Identifier_Pos_X));
+                                        strcpy(vTerm.Command_Prompt_OK, dupprintf("No : Screen Identifier '%s' Position (Y,X) Mismatch (actual %s vs expected %s) (1)", vTerm.Command_Screen_Identifier, vTerm.Screen_Identifier_Pos, vTerm.Command_Screen_Identifier_Pos));
+
+                                        vTermSessionSetValue(vTerm.Command_Prompt_OK, vTerm_Command_Prompt_OK_pos, vTerm.Command_Seq);
+
+                                        vTermCommandMismatch(vTerm.Command_Prompt_OK, vTerm.Screen_Identifier_Pos, vTerm.Command_Screen_Identifier_Pos);
+
                                     }
+
+                                    vTerm.Screen_Identifier_Pos[0] = '\0';
                                 }
                             }
                             else {
 
                                 l_proc = false;
 
-                                vTerm.Screen_Identifier_Pos[0] = '\0';
+                                if (vTermScreenText_Pos_Y >= 0) {
 
-                                if (vTermLog_Execution == true) {
-                                    vTermCommandMismatch("Screen Identifier Position Mismatch (Y)", dupprintf("%d", vTermScreenText_Pos_Y), dupprintf("%d", vTerm.Command_Screen_Identifier_Pos_Y));
+                                    strcpy(vTerm.Command_Prompt_OK, dupprintf("No : Screen Identifier '%s' Position (Y,X) Mismatch (actual %s vs expected %s) (2)", vTerm.Command_Screen_Identifier, vTerm.Screen_Identifier_Pos, vTerm.Command_Screen_Identifier_Pos));
+
+                                    vTermSessionSetValue(vTerm.Command_Prompt_OK, vTerm_Command_Prompt_OK_pos, vTerm.Command_Seq);
+
+                                    vTermCommandMismatch(vTerm.Command_Prompt_OK, vTerm.Screen_Identifier_Pos, vTerm.Command_Screen_Identifier_Pos);
                                 }
+
+                                vTerm.Screen_Identifier_Pos[0] = '\0';
                             }
                         }
                     }
@@ -1737,7 +2049,14 @@ void vTermSendCommand() {
 
                         l_proc = false;
 
-                        vTermCommandMismatch("Screen Identifier Mismatch", "", vTerm.Command_Screen_Identifier);
+                        if (strlen(trim(vTerm.Command_Screen_Identifier_Pos)) > 0)
+                            strcpy(vTerm.Command_Prompt_OK, dupprintf("No : Screen Identifier '%s' Not Found (expected at %s)", vTerm.Command_Screen_Identifier, vTerm.Command_Screen_Identifier_Pos));
+                        else
+                            strcpy(vTerm.Command_Prompt_OK, dupprintf("No : Screen Identifier '%s' Not Found", vTerm.Command_Screen_Identifier));
+
+                        vTermSessionSetValue(vTerm.Command_Prompt_OK, vTerm_Command_Prompt_OK_pos, vTerm.Command_Seq);
+
+                        vTermCommandMismatch(vTerm.Command_Prompt_OK, "", vTerm.Command_Screen_Identifier);
                     }
                 }
 
@@ -1759,7 +2078,21 @@ void vTermSendCommand() {
 
                     l_screen_pos = instrrev(vTerm.Screen, vTerm.Command_Prompt_Expected);
 
-                    if (l_screen_pos > vTerm.Screen_Ptr) {
+                    if (l_screen_pos < 0 ) {
+
+                        l_proc = false;
+
+                        if (strlen(trim(vTerm.Command_Prompt_Expected_Pos)) > 0)
+                            strcpy(vTerm.Command_Prompt_OK, dupprintf("No : Command Prompt '%s' Not Found (expected at %s)", vTerm.Command_Prompt_Expected, vTerm.Command_Prompt_Expected_Pos));
+                        else
+                            strcpy(vTerm.Command_Prompt_OK, dupprintf("No : Command Prompt '%s' Not Found", vTerm.Command_Prompt_Expected));
+
+                        vTermSessionSetValue(vTerm.Command_Prompt_OK, vTerm_Command_Prompt_OK_pos, vTerm.Command_Seq);
+
+                        vTermCommandMismatch(vTerm.Command_Prompt_OK, "", vTerm.Command_Prompt_Expected);
+
+                    }
+                    else if (l_screen_pos > vTerm.Screen_Ptr) {
 
                         strcpy(vTerm.Command_Prompt_Pos, vTermScreenTextPosition(vTerm.Command_Prompt_Expected, false));
 
@@ -1776,31 +2109,40 @@ void vTermSendCommand() {
                                     vTermSessionSetValue(vTerm.Command_Prompt_Pos, vTerm_Command_Prompt_At_pos, vTerm.Command_Seq);
 
                                     if (vTermLog_Execution == true) {
-                                        vTermWriteToLog("Command Prompt Position Matches OK (Y,X)", vTerm.Command_Prompt_Pos, vTerm.Command_Prompt_Expected_Pos);
+                                        vTermWriteToLog(dupprintf("Command Prompt '%s' Position Matches OK (expected at %s)", vTerm.Command_Prompt_Expected, vTerm.Command_Prompt_Expected_Pos), vTerm.Command_Prompt_Pos, vTerm.Command_Prompt_Expected_Pos);
                                     }
-
                                 }
-
                                 else {
 
                                     l_proc = false;
 
-                                    vTerm.Command_Prompt_Pos[0] = '\0';
+                                    if (vTermScreenText_Pos_Y >= 0) {
 
-                                    if (vTermLog_Execution == true) {
-                                        vTermCommandMismatch("Command Prompt Position Mismatch (X)", dupprintf("%d", vTermScreenText_Pos_X), dupprintf("%d", vTerm.Command_Prompt_Expected_Pos_X));
+                                        strcpy(vTerm.Command_Prompt_OK, dupprintf("No : Command Prompt '%s' Position (Y,X) Mismatch (actual %s vs expected %s) (1)", vTerm.Command_Prompt_Expected, vTerm.Command_Prompt_Pos, vTerm.Command_Prompt_Expected_Pos));
+
+                                        vTermSessionSetValue(vTerm.Command_Prompt_OK, vTerm_Command_Prompt_OK_pos, vTerm.Command_Seq);
+
+                                        vTermCommandMismatch(vTerm.Command_Prompt_OK, vTerm.Command_Prompt_Pos, vTerm.Command_Prompt_Expected_Pos);
+
                                     }
+
+                                    vTerm.Command_Prompt_Pos[0] = '\0';
                                 }
                             }
                             else {
 
                                 l_proc = false;
 
-                                vTerm.Command_Prompt_Pos[0] = '\0';
+                                if (vTermScreenText_Pos_Y >= 0) {
 
-                                if (vTermLog_Execution == true) {
-                                    vTermCommandMismatch("Command Prompt Position Mismatch (Y)", dupprintf("%d", vTermScreenText_Pos_Y), dupprintf("%d", vTerm.Command_Prompt_Expected_Pos_Y));
+                                    strcpy(vTerm.Command_Prompt_OK, dupprintf("No : Command Prompt '%s' Position (Y,X) Mismatch (actual %s vs expected %s) (2)", vTerm.Command_Prompt_Expected, vTerm.Command_Prompt_Pos, vTerm.Command_Prompt_Expected_Pos));
+
+                                    vTermSessionSetValue(vTerm.Command_Prompt_OK, vTerm_Command_Prompt_OK_pos, vTerm.Command_Seq);
+
+                                    vTermCommandMismatch(vTerm.Command_Prompt_OK, vTerm.Command_Prompt_Pos, vTerm.Command_Prompt_Expected_Pos);
                                 }
+
+                                vTerm.Command_Prompt_Pos[0] = '\0';
                             }
                         }
 
@@ -1812,35 +2154,29 @@ void vTermSendCommand() {
 
                         l_proc = false;
 
-                        strcpy(vTerm.Command_Prompt_OK, "No");
+                        if (vTermScreenText_Pos_Y >= 0) {
 
-                        vTermSessionSetValue( vTerm.Command_Prompt_OK, vTerm_Command_Prompt_OK_pos, vTerm.Command_Seq);
+                            strcpy(vTerm.Command_Prompt_OK, dupprintf("No : Command Prompt '%s' Position (Y,X) Mismatch (actual %s vs expected %s) (3)", vTerm.Command_Prompt_Expected, vTerm.Command_Prompt_Pos, vTerm.Command_Prompt_Expected_Pos));
 
-                        if (vTerm.Screen_Requested_Seq < vTerm.Command_Seq) {
-                            vTermSessionGetScreen( false);
-                        }
-                        else {
+                            vTermSessionSetValue( vTerm.Command_Prompt_OK, vTerm_Command_Prompt_OK_pos, vTerm.Command_Seq);
 
-                            vTerm.Command_Mismatch = true;
-
-                            if (vTerm.Command_Seq > 1) {
-                                l_proc = false;
-
-                                l_sid = instr(vTerm.Screen, "password", 0);
-
-                                if (l_sid > 0) {
-                                    l_proc = false;
-                                }
+                            if (vTerm.Screen_Requested_Seq < vTerm.Command_Seq) {
+                                vTermSessionGetScreen( false);
                             }
+                            else {
 
-                            //if (vTermLog_Execution == true) {
-                                vTermCommandMismatch("Command Prompt Mismatch", dupprintf("%d %d %s", l_screen_pos, vTerm.Screen_Ptr, vTerm.Screen), vTerm.Command_Prompt_Expected);
-                            //}
+                                vTerm.Command_Mismatch = true;
+
+                                vTermCommandMismatch(vTerm.Command_Prompt_OK, vTerm.Command_Prompt_Pos, vTerm.Command_Prompt_Expected_Pos);
+
+                            }
                         }
                     }
                 }
 
                 if (l_proc == true) {
+
+                    vTerm.Command_Mismatch = false;
 
                     strcpy(vTerm.Command_Prompt_OK, "Yes");
 
@@ -1856,17 +2192,33 @@ void vTermSendCommand() {
                     }
                 }
             }
-            else {
+            else if (vTerm.Screen_Cursor.Y >= 0 && (vTerm.Command_Prompt_Expected_Pos_Y > 0 || vTerm.Command_Prompt_Expected_Pos_X> 0)) {
+
+                if (strlen(vTerm.Command_Prompt_Expected_Pos) <= 0) {
+                    vTerm.Command_Seq = vTerm.Command_Seq;
+                }
+
+                strcpy(vTerm.Command_Prompt_OK, dupprintf("No : Screen Cursor Position (Y,X) Mismatch (actual %s vs expected %s) (4)", ifnull(vTerm.Command_Prompt_Pos, "not found"), vTerm.Command_Prompt_Expected_Pos));
+
+                vTermSessionSetValue(vTerm.Command_Prompt_OK, vTerm_Command_Prompt_OK_pos, vTerm.Command_Seq);
+
+                vTermCommandMismatch(vTerm.Command_Prompt_OK, vTerm.Command_Prompt_Pos, vTerm.Command_Prompt_Expected_Pos);
 
                 if (vTermLog_Execution == true) {
-                    vTermWriteToLog( "vTermSendCommand|Cursor X Position Mismatch", dupprintf("%d", (vTerm.Screen_Cursor.X - vTerm.Command_Send_Pos)), dupprintf("%d", vTerm.Command_Send_Expected_Cursor_X));
+                    vTermWriteToLog( "vTermSendCommand|Cursor X Position (Y,X) Mismatch", dupprintf("%d", (vTerm.Screen_Cursor.X - vTerm.Command_Send_Pos)), dupprintf("%d", vTerm.Command_Send_Expected_Cursor_X));
                 }
             }
         }
-        else {
+        else if (vTerm.Screen_Cursor.Y >= 0 && (vTerm.Command_Prompt_Expected_Pos_Y > 0 || vTerm.Command_Prompt_Expected_Pos_X > 0)) {
+
+            strcpy(vTerm.Command_Prompt_OK, dupprintf("No : Screen Cursor Position (Y,X) Mismatch (actual %s vs expected %s) (5)", ifnull(vTerm.Command_Prompt_Pos, "not found"), vTerm.Command_Prompt_Expected_Pos));
+
+            vTermSessionSetValue(vTerm.Command_Prompt_OK, vTerm_Command_Prompt_OK_pos, vTerm.Command_Seq);
+
+            vTermCommandMismatch(vTerm.Command_Prompt_OK, vTerm.Command_Prompt_Pos, vTerm.Command_Prompt_Expected_Pos);
 
             if (vTermLog_Execution == true) {
-                vTermWriteToLog( "vTermSendCommand|Cursor Y Position Mismatch", dupprintf("%d", vTerm.Screen_Cursor.Y), dupprintf("%d", vTerm.Command_Send_Expected_Cursor_Y));
+                vTermWriteToLog( "vTermSendCommand|Cursor Y Position (Y,X) Mismatch", dupprintf("%d", vTerm.Screen_Cursor.Y), dupprintf("%d", vTerm.Command_Send_Expected_Cursor_Y));
             }
         }
     }
@@ -1880,7 +2232,7 @@ void vTermSessionInitialise(int SessionID) {
 
     vTerm.Command_Seq = 1;
     vTerm.Command_Current_Seq = -1;
-    /*vTerm.Command_Seq_Max = -1;*/
+    vTerm.Command_Seq_Max = -1;
     vTerm.Command_Prompt[0] = '\0';
     vTerm.Command_Prompt_Pos[0] = '\0';
     vTerm.Command_Prompt_Len = 0;
@@ -1924,12 +2276,25 @@ void vTermSessionInitialise(int SessionID) {
     vTerm.Screen_New_Rows = 0;
 
     vTerm_Stop = false;
+
+    if (strlen(vterm_capture_file) >= 0) {
+        vTermOpenSessionFiles();
+    }
 }
 
 void vTermWaitingForInput( int Cursor_X, int Cursor_Y, int Columns_X, int Rows_Y, bool Command_Processing) {
 
     if (vTermLog_Execution == true) {
         vTermWriteToLog( "vTermWaitingForInput|Start", dupprintf("%d", Cursor_X), dupprintf("%d", Cursor_Y));
+    }
+    
+    if (vTerm.Screen_Get == true) {
+
+        if (vTermLog_Execution == true) {
+            vTermWriteToLog("vTermWaitingForInput|GetScreen In Progress - Return", dupprintf("%d", Cursor_X), dupprintf("%d", Cursor_Y));
+        }
+
+        return;
     }
 
     if (vTerm.Screen_Cursor.X == Cursor_X && vTerm.Screen_Cursor.Y == Cursor_Y && vTerm.Command_Mismatch == true) {
@@ -1963,14 +2328,14 @@ void vTermWaitingForInput( int Cursor_X, int Cursor_Y, int Columns_X, int Rows_Y
                     }
                 }
 
-                vTermSessionGetScreen(true);
+                vTermSessionGetScreen(false);
 
                 strcpy(vTerm.Command_Processed_Manual_Input, vTerm.Command_Processed);
 
                 vTerm.Screen_Cursor_Prev_X = vTerm.Screen_Cursor.X;
                 vTerm.Screen_Cursor_Prev_Y = vTerm.Screen_Cursor.Y;
 
-                strcpy(vTerm.Command_Current_Cursor_Pos, vTerm.Screen_Cursor.Y + "," + vTerm.Screen_Cursor.X);
+                strcpy(vTerm.Command_Current_Cursor_Pos, dupprintf("%d,%d",vTerm.Screen_Cursor.Y, vTerm.Screen_Cursor.X));
 
                 vTermSessionSetValue( vTerm.Command_Current_Cursor_Pos, vTerm_Current_Cursor_pos, vTerm.Command_Seq);
             }
@@ -1979,19 +2344,19 @@ void vTermWaitingForInput( int Cursor_X, int Cursor_Y, int Columns_X, int Rows_Y
     /* Command is being processed. */
     else if (vTerm.Command_Processing == true) {
 
-        vTermSessionGetScreen( true);
+        vTermSessionGetScreen(false);
 
         if (!toplevel_callback_pending()) {
 
             if (!(vTerm.Screen_Cursor_Prev_X == vTerm.Screen_Cursor.X && vTerm.Screen_Cursor_Prev_Y == vTerm.Screen_Cursor.Y)) {
 
-            strcpy(vTerm.Command_Current_Cursor_Pos, vTerm.Screen_Cursor.Y + "," + vTerm.Screen_Cursor.X);
+            strcpy(vTerm.Command_Current_Cursor_Pos, dupprintf("%d,%d", vTerm.Screen_Cursor.Y, vTerm.Screen_Cursor.X));
 
             vTermSendCommand();
             }
 
         }
-     }
+    }
     /* Waiting for input. */
     else if (vTerm.Command_Send_Buffer_Len + vTerm.Submit_Key_Len > 0) {
         vTermSendCommand();
@@ -2013,7 +2378,7 @@ void vTermSetCommandProcessed()
         strcpy(command_input, "##private##");
     }
     else if (vTerm.Command_Seq > vTerm.Command_Seq_Max) {
-        strcpy(command_input, vTerm.Command_Processed);
+        strcpy(command_input, trim(string_replacechar(vTerm.Command_Processed, '\r', ' ')));
     }
     else {
         strcpy(command_input, vTerm.Command_Send);
@@ -2035,13 +2400,23 @@ void vTermSetCommandProcessed()
     append_char(vTerm.Commands_Input, DBDelimiter, MAX_BUFFER_SIZE);
     append_string(vTerm.Commands_Input, vTerm.Command_Prompt_Expected_Pos, MAX_BUFFER_SIZE);
     append_char(vTerm.Commands_Input, DBDelimiter, MAX_BUFFER_SIZE);
-    append_string(vTerm.Commands_Input, vTerm.Command_Send_Expected_Cursor, MAX_BUFFER_SIZE);
+
+    if (vTerm.Command_Seq <= vTerm.Command_Seq_Max)
+        append_string(vTerm.Commands_Input, vTerm.Command_Send_Expected_Cursor, MAX_BUFFER_SIZE);
+    else
+        append_string(vTerm.Commands_Input, vTerm.Command_Sent_Cursor_Pos, MAX_BUFFER_SIZE);
+
     append_char(vTerm.Commands_Input, DBDelimiter, MAX_BUFFER_SIZE);
     append_string(vTerm.Commands_Input, command_input, MAX_BUFFER_SIZE);
     append_char(vTerm.Commands_Input, DBDelimiter, MAX_BUFFER_SIZE);
     append_string(vTerm.Commands_Input, vTerm.Command_Input_Hidden, MAX_BUFFER_SIZE);
     append_char(vTerm.Commands_Input, DBDelimiter, MAX_BUFFER_SIZE);
-    append_string(vTerm.Commands_Input, vTerm.Submit_Key, MAX_BUFFER_SIZE);
+
+    if (vTerm.Command_Seq <= vTerm.Command_Seq_Max)
+        append_string(vTerm.Commands_Input, vTerm.Submit_Key, MAX_BUFFER_SIZE);
+    else
+        append_string(vTerm.Commands_Input, vTerm.Command_Processed_Submit_Key, MAX_BUFFER_SIZE);
+
     append_char(vTerm.Commands_Input, DBDelimiter, MAX_BUFFER_SIZE);
     append_string(vTerm.Commands_Input, dupprintf("%d", vTerm.Command_Send_Pause), MAX_BUFFER_SIZE);
     append_char(vTerm.Commands_Input, DBDelimiter, MAX_BUFFER_SIZE);
@@ -2054,9 +2429,7 @@ void vTermSetCommandProcessed()
 
     if (vTerm.Command_Seq <= vTerm.Command_Seq_Max) {
 
-        append_string(vTerm.Commands_Processed, dupprintf("<Command_Input_Script>%d", vterm_sessionid), MAX_BUFFER_SIZE);
-        append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
-        append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Seq), MAX_BUFFER_SIZE);
+        append_string(vTerm.Commands_Processed, dupprintf("<command_input_script>%d", vTerm.Command_Seq), MAX_BUFFER_SIZE);
         append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
         append_string(vTerm.Commands_Processed, vTerm.Command_Screen_Identifier, MAX_BUFFER_SIZE);
         append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
@@ -2080,15 +2453,13 @@ void vTermSetCommandProcessed()
         append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
         append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Script_DB_ID), MAX_BUFFER_SIZE);
         append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
-        append_string(vTerm.Commands_Processed, "</Command_Input_Script>", MAX_BUFFER_SIZE);
+        append_string(vTerm.Commands_Processed, "</command_input_script>", MAX_BUFFER_SIZE);
         append_char(vTerm.Commands_Processed, '\n', MAX_BUFFER_SIZE);
 
     }
     else {
 
-        append_string(vTerm.Commands_Processed, dupprintf("<Command_Input_User>%d", vterm_sessionid), MAX_BUFFER_SIZE);
-        append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
-        append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Seq), MAX_BUFFER_SIZE);
+        append_string(vTerm.Commands_Processed, dupprintf("<command_input_user>%d", vTerm.Command_Seq), MAX_BUFFER_SIZE);
         append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
         append_string(vTerm.Commands_Processed, vTerm.Command_Screen_Identifier, MAX_BUFFER_SIZE);
         append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
@@ -2112,28 +2483,32 @@ void vTermSetCommandProcessed()
         append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
         append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Script_DB_ID), MAX_BUFFER_SIZE);
         append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
-        append_string(vTerm.Commands_Processed, "</Command_Input_User>", MAX_BUFFER_SIZE);
+        append_string(vTerm.Commands_Processed, "</command_input_user>", MAX_BUFFER_SIZE);
         append_char(vTerm.Commands_Processed, '\n', MAX_BUFFER_SIZE);
 
-        }
-
-    if (strcmp(vTerm.Command_Input_Hidden, "Yes") != 0) {
-        strcpy(command_input, vTerm.Command_Processed);
     }
+    
+    if (strcmp(vTerm.Command_Input_Hidden, "Yes") != 0) 
+        strcpy(command_input, vTerm.Command_Processed);
+    else
+        command_input[0] = '\0';
 
-    append_string(vTerm.Commands_Processed, dupprintf("<Command_Processed>%d", vterm_sessionid), MAX_BUFFER_SIZE);
-    append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
-    append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Seq), MAX_BUFFER_SIZE);
+    append_string(vTerm.Commands_Processed, dupprintf("<command_processed>%d", vTerm.Command_Seq), MAX_BUFFER_SIZE);
     append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
     append_string(vTerm.Commands_Processed, vTerm.Command_Screen_Identifier, MAX_BUFFER_SIZE);
     append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
-    append_string(vTerm.Commands_Processed, vTerm.Command_Screen_Identifier_Pos, MAX_BUFFER_SIZE);
+    append_string(vTerm.Commands_Processed, vTerm.Screen_Identifier_Pos, MAX_BUFFER_SIZE);
     append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
     append_string(vTerm.Commands_Processed, vTerm.Screen_Capture, MAX_BUFFER_SIZE);
     append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
     append_string(vTerm.Commands_Processed, vTerm.Command_Prompt, MAX_BUFFER_SIZE);
     append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
-    append_string(vTerm.Commands_Processed, vTerm.Command_Prompt_Pos, MAX_BUFFER_SIZE);
+
+    if (vTerm.Command_Seq <= vTerm.Command_Seq_Max)
+        append_string(vTerm.Commands_Processed, vTerm.Command_Prompt_Pos, MAX_BUFFER_SIZE);
+    else
+        append_string(vTerm.Commands_Processed, vTerm.Command_Sent_Cursor_Pos, MAX_BUFFER_SIZE);
+        
     append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
     append_string(vTerm.Commands_Processed, vTerm.Command_Sent_Cursor_Pos, MAX_BUFFER_SIZE);
     append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
@@ -2149,7 +2524,9 @@ void vTermSetCommandProcessed()
     append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
     append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Script_DB_ID), MAX_BUFFER_SIZE);
     append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
-    append_string(vTerm.Commands_Processed, "</Command_Processed>", MAX_BUFFER_SIZE);
+    append_string(vTerm.Commands_Processed, "</command_processed>", MAX_BUFFER_SIZE);
+
+    vTerm.Screen_Command_Seq_To = vTerm.Command_Seq;
 
     vTerm.Command_Processed_Logging = false;
 
@@ -2172,18 +2549,23 @@ void vTermSetCommandProcessed()
 void vTermProcessData(char* PuttyData, int DataLength, int CommandType) {
 
     char l_cmd[MAX_BUFFER_SIZE];
-
     int l_cmd_len;
 
+    char l_fmt[MAX_STRING_LENGTH];
+
+    bool l_alpha;
     bool l_command;
+    bool l_proc;
+
     bool l_submit;
     bool l_submit_key = false;
-    bool l_alpha;
-    bool l_proc;
 
     int l_pos;
     int l_ptr;
-    int l_ptr2;
+
+    int l_scr_len;
+    int l_scr_pos;
+
     int l_wrap;
 
     if (vTerm.Pid <= 0) {
@@ -2194,7 +2576,7 @@ void vTermProcessData(char* PuttyData, int DataLength, int CommandType) {
     }
 
     if (vTermLog_Execution == true) {
-        vTermWriteToLog("vTermProcessData|Start", dupprintf("%d %s", DataLength, PuttyData), NULL);
+        vTermWriteToLog("vTermProcessData|Start", dupprintf("%d %d %s", CommandType, DataLength, PuttyData), dupprintf("%s", vTerm.Command_Processed));
     }
 
     if (vTerm.Command_Mismatch == true) {
@@ -2220,11 +2602,24 @@ void vTermProcessData(char* PuttyData, int DataLength, int CommandType) {
                 if (CommandType == vTerm_Command) {
 
                     if (strlen(trim(vTerm.Command_Sent_Cursor_Pos)) > 0) {
-                        /* Ignore.*/
+
+                        if (vTerm.Command_Seq > vTerm.Command_Seq_Max) {
+                        
+                            if (strcmp(vTerm.Command_Sent_Cursor_Pos, dupprintf("%d,%d", vTerm.Screen_Cursor.Y, vTerm.Screen_Cursor.X)) == 0) {
+
+                                vTermSessionSetValue("Yes", vTerm_Command_Input_Hidden_pos, vTerm.Command_Seq);
+
+                                strcpy(vTerm.Command_Input_Hidden, "Yes");
+
+                            }
+                        }
                     }
                     else {
 
-                        sprintf(vTerm.Command_Sent_Cursor_Pos, "%d,%d", vTerm.Screen_Cursor.Y, vTerm.Screen_Cursor.X);
+                        vTerm.Command_Sent_Cursor_X = vTerm.Screen_Cursor.X;
+                        vTerm.Command_Sent_Cursor_Y = vTerm.Screen_Cursor.Y;
+
+                        sprintf(vTerm.Command_Sent_Cursor_Pos, "%d,%d", vTerm.Command_Sent_Cursor_Y, vTerm.Command_Sent_Cursor_X);
 
                         vTermSessionSetValue(vTerm.Command_Sent_Cursor_Pos, vTerm_Command_Sent_Cursor_At_pos, vTerm.Command_Seq);
 
@@ -2240,61 +2635,113 @@ void vTermProcessData(char* PuttyData, int DataLength, int CommandType) {
 
                                 l_ptr = vTerm.Screen_Cursor.X;
 
+                                l_scr_len = strlen(vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap]);
+
+                                if (l_scr_len < l_ptr) {
+                                    l_scr_len = l_ptr + 1;
+                                }
+
                                 while (l_ptr > 0 && l_proc == true) {
 
-                                    if (vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap][l_ptr] == ' ') {
+                                    if (isalnum(vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap][l_ptr])) {
+                                        l_alpha = true;
+                                    }
+                                    else if (!isascii(vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap][l_ptr])) {
+                                        l_proc = false;
+                                    }										
+                                    else if (l_ptr > 0 && l_alpha == true) {
+                                    
+                                        if (!isalnum(vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap][l_ptr]) &&
+                                            !isalnum(vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap][l_ptr-1])) {
 
-                                        if (vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap][l_ptr] == ' ' &&
-                                            vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap][l_ptr - 1] == ' ') {
-
-                                            l_cmd[0] = '\0';
-
-                                            l_ptr2 = l_ptr;
-                                            
                                             l_ptr = l_ptr + 1;
 
-                                            while (l_ptr <= vTerm.Screen_Cursor.X) {
-                                                
+                                            l_proc = false;
+                                        
+										}
+                                    
+                                    }
+
+                                    if (l_proc == true || vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap][l_ptr - 1] != ' ')  l_ptr = l_ptr - 1;
+								}
+
+                                if (l_alpha == true) l_proc = true;
+
+                                while (l_ptr > 0 && l_proc == true) {
+
+                                    if (vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap][l_ptr] == ' ' &&
+                                        vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap][l_ptr - 1] == ' ') {
+
+                                        l_cmd[0] = '\0';
+
+                                        l_scr_pos = l_ptr;
+
+                                        l_ptr = l_ptr + 1;
+
+                                        while (l_proc == true && l_ptr < l_scr_len) {
+
+                                            if (l_ptr > vTerm.Screen_Cursor.X &&
+                                                vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap][l_ptr] == ' ' &&
+                                                vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap][l_ptr + 1] == ' ') {
+                                                l_proc = false;
+                                            }
+                                            else if (!isascii(vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap][l_ptr])) {
+                                                l_proc = false;
+                                            }
+                                            else {
+
+                                                l_alpha = true;
+
                                                 append_char(l_cmd, vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap][l_ptr], MAX_BUFFER_SIZE);
-                                                
+
                                                 l_ptr = l_ptr + 1;
 
                                             }
-
-                                            if (strlen(trim(l_cmd)) > 0) {
-
-                                                if (l_alpha == true) {
-                                                    vTermSessionSetValue(trim(l_cmd), vTerm_Expected_Command_Prompt_pos, vTerm.Command_Seq);
-                                                    vTermSessionSetValue(vTerm.Screen_Cursor.Y + "," + l_ptr2, vTerm_Expected_Command_Prompt_At_pos, vTerm.Command_Seq);
-                                                    vTermSessionSetValue(vTerm.Screen_Cursor.Y + "," + l_ptr2, vTerm_Command_Prompt_At_pos, vTerm.Command_Seq);
-                                                }
-
-                                            vTermSessionSetValue(vTerm.Command_Sent_Cursor_Pos, vTerm_Expected_Input_Cursor_At_pos, vTerm.Command_Seq);
-
-                                            }
-
-                                            l_proc = false;
                                         }
+
+                                        if (l_alpha == true) {
+
+                                            vTermSessionSetValue(trim(l_cmd), vTerm_Expected_Command_Prompt_pos, vTerm.Command_Seq);
+                                            vTermSessionSetValue(dupprintf("%d,%d", vTerm.Screen_Cursor.Y, l_scr_pos + 1), vTerm_Expected_Command_Prompt_At_pos, vTerm.Command_Seq);
+                                            vTermSessionSetValue(dupprintf("%d,%d", vTerm.Screen_Cursor.Y, l_scr_pos + 1), vTerm_Command_Prompt_At_pos, vTerm.Command_Seq);
+
+                                            strcpy(vTerm.Command_Prompt_Expected, vTermGetCommand(vTerm_Expected_Command_Prompt_pos, false));
+                                            strcpy(vTerm.Command_Prompt_Expected_Pos, vTermGetCommand(vTerm_Expected_Command_Prompt_At_pos, false));
+
+                                            strcpy(vTerm.Command_Prompt, vTerm.Command_Prompt_Expected);
+                                            strcpy(vTerm.Command_Prompt_Pos, vTerm.Command_Prompt_Expected_Pos);
+
+                                            l_alpha = false;
+
+                                        }
+
+                                        vTermSessionSetValue(vTerm.Command_Sent_Cursor_Pos, vTerm_Expected_Input_Cursor_At_pos, vTerm.Command_Seq);
+
+                                        l_proc = false;
+
                                     }
-                                    else if (isalnum(vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap][l_ptr]) == true) {
+                                    else if (isascii(vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap][l_ptr])) {
                                         l_alpha = true;
                                     }
 
                                     l_ptr = l_ptr - 1;
+
                                 }
 
-                                if (l_proc == true) {
+                                if (l_alpha == true) {
 
-                                    if (l_alpha == true) {
+                                    vTermSessionSetValue(rtrim(mid(vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap], l_ptr, vTerm.Screen_Cursor.X - 1)), vTerm_Expected_Command_Prompt_pos, vTerm.Command_Seq);
+                                    vTermSessionSetValue(dupprintf("%d,%d", vTerm.Screen_Cursor.Y, l_ptr), vTerm_Expected_Command_Prompt_At_pos, vTerm.Command_Seq);
+                                    vTermSessionSetValue(dupprintf("%d,%d", vTerm.Screen_Cursor.Y, l_ptr), vTerm_Command_Prompt_At_pos, vTerm.Command_Seq);
 
-                                        vTermSessionSetValue(trim(vTerm.Screen_Array[vTerm.Screen_Cursor.Y - l_wrap], 1, vTerm.Screen_Cursor.X - 1), vTerm_Expected_Command_Prompt_pos, vTerm.Command_Seq);
-                                        vTermSessionSetValue(vTerm.Screen_Cursor.Y + ",0", vTerm_Expected_Command_Prompt_At_pos, vTerm.Command_Seq);
-                                        vTermSessionSetValue(vTerm.Screen_Cursor.Y + ",0", vTerm_Command_Prompt_At_pos, vTerm.Command_Seq);
+                                    strcpy(vTerm.Command_Prompt_Expected, vTermGetCommand(vTerm_Expected_Command_Prompt_pos, false));
+                                    strcpy(vTerm.Command_Prompt_Expected_Pos, vTermGetCommand(vTerm_Expected_Command_Prompt_At_pos, false));
 
-                                    }
-
-                                    vTermSessionSetValue(vTerm.Command_Sent_Cursor_Pos, vTerm_Expected_Input_Cursor_At_pos, vTerm.Command_Seq);
+                                    strcpy(vTerm.Command_Prompt, vTerm.Command_Prompt_Expected);
+                                    strcpy(vTerm.Command_Prompt_Pos, vTerm.Command_Prompt_Expected_Pos);
                                 }
+
+                                vTermSessionSetValue(vTerm.Command_Sent_Cursor_Pos, vTerm_Expected_Input_Cursor_At_pos, vTerm.Command_Seq);
                             }
                         }
                     }
@@ -2476,7 +2923,7 @@ void vTermProcessData(char* PuttyData, int DataLength, int CommandType) {
     }
 
     if (vTermLog_Execution == true) {
-        vTermWriteToLog("vTermProcessData|Finish", dupprintf("%s", PuttyData), NULL);
+        vTermWriteToLog("vTermProcessData|Finish", dupprintf("%d %d %s", CommandType, DataLength, PuttyData), dupprintf("%s", vTerm.Command_Processed));
     }
 }
 
@@ -2487,13 +2934,6 @@ void vTermNextScreenRow(bool Screen_Changed) {
     }
 
     if (Screen_Changed == true) {
-
-        if (vTerm.Command_Seq > vTerm.Screen_Command_Seq_From) {
-            vTerm.Screen_Command_Seq_To = vTerm.Command_Seq - 1;
-        }
-        else {
-            vTerm.Screen_Command_Seq_To = vTerm.Command_Seq;
-        }
 
         if (vTerm.Screen_Command_Seq_From <= vTerm.Screen_Command_Seq_To && !(vTerm.Screen_Command_Seq_From == vTerm.Command_Seq)) {
             vTermWriteSessionToFile();
@@ -2508,10 +2948,7 @@ void vTermNextScreenRow(bool Screen_Changed) {
         vTerm.Screen_Ptr = -1;
     }
     else if (vTerm.Command_Seq > vTerm.Screen_Command_Seq_From) {
-
-        if (vTerm.Command_Seq <= vTerm.Command_Seq_Max) {
-            vTerm.Screen_Command_Seq_To = vTerm.Command_Seq;
-        }
+        /* Ignore. */
     }
     else {
         return;
@@ -2541,7 +2978,7 @@ void vTermScreenUpdated( char* PuttyData, int DataLength) {
     if (vTerm.Hwnd > 0L) {
 
         if (vTermLog_Execution == true) {
-            vTermWriteToLog( "vTermScreenUpdated|Start", PuttyData, vTerm.Screen);
+            vTermWriteToLog("vTermScreenUpdated|Start", PuttyData, vTerm.Screen);
         }
 
         l_pos = strlen(vTerm.Screen);
@@ -2551,6 +2988,8 @@ void vTermScreenUpdated( char* PuttyData, int DataLength) {
 
         l_rows[0] = -1;
         l_rows[1] = -1;
+
+        vTerm.Command_Mismatch = false;
 
         memset(vTerm.Screen_New, 0, sizeof(vTerm.Screen_New));
 
@@ -2573,7 +3012,7 @@ void vTermScreenUpdated( char* PuttyData, int DataLength) {
         else if (!(vTerm.Command_Screen_Identifier_Len > 0 && strstr(vTerm.Screen_New, vTerm.Command_Screen_Identifier) != NULL) ||
                  !(vTerm.Command_Prompt_Len > 0 && strstr(vTerm.Screen_New, vTerm.Command_Prompt) != NULL)) {
 
-            l_ptr = string_split((char*)vTerm.Screen_New, '\n', MAX_SCREEN_ROWS, MAX_SCREEN_COLS);
+            l_ptr = string_split((char*)vTerm.Screen_New, '\n', MAX_SCREEN_ROWS, MAX_SCREEN_COLS, false);
 
             vTerm.Screen_New_Rows = l_ptr;
 
@@ -2656,7 +3095,7 @@ void vTermScreenUpdated( char* PuttyData, int DataLength) {
                     }
                 }
             }
-            else {
+            else if (vTerm.Screen_Array_Rows > 0) {
                 l_proc = true;
             }
         }
@@ -2668,24 +3107,26 @@ void vTermScreenUpdated( char* PuttyData, int DataLength) {
                 if (strcmp(vTerm.Screen_New, vTerm.Screen) == 0 && vTerm.Screen_Cursor_Prev_X == vTerm.Screen_Cursor.X && vTerm.Screen_Cursor_Prev_Y == vTerm.Screen_Cursor.Y) {
                     /* Ignore. */
                 }
-                else if (vTerm.Command_Processed_Len > 1 && vTerm.Command_Processed_Submit_Key_Len <= 0) {
+                else if (vTerm.Submit_Key_Len > 0) {
                     /* Ignore. */
                 }
                 else if (!(vTerm.Screen_Cursor_Prev_X + 1 == vTerm.Screen_Cursor.X && vTerm.Screen_Cursor_Prev_Y == vTerm.Screen_Cursor.Y)) {
 
-                    if (vTerm.Submit_Key_Len <= 0 && vTerm.Command_Processed_Len == vTerm.Command_Send_Len) {
+                    if (vTerm.Command_Processed_Len == vTerm.Command_Send_Len || vTerm.Command_Seq > vTerm.Command_Seq_Max) {
 
                         vTermSetCommandProcessed();
 
-                        if (vTerm.Command_Processing_Started == true) vTerm.Command_Processing_Finished = true;
+                        vTerm.Command_Processing_Finished = true;
                     }
                 }
             }
         }
 
+        bool l_ok;
+                
         if (vTerm.Command_Processing_Finished == true) {
 
-            vTerm.Command_Mismatch = false;
+            //l_ok = vTermInputCommandProcessed(dupprintf("vTermScreenUpdated|TermNextScreenRow(%s) #1", l_proc ? "true" : "false"));
 
             vTerm.Command_Processing = false;
             vTerm.Command_Processing_Started = false;
@@ -2700,25 +3141,21 @@ void vTermScreenUpdated( char* PuttyData, int DataLength) {
 
                 RecordForScripting = true;
 
-                vTerm.Screen_Command_Seq_To = vTerm.Command_Seq - 1;
-
                 vTermNextScreenRow(false);
-
             }
 
             l_new = true;
 
             vTerm.Row_Updated_At = time(NULL);
-            vTerm.Screen_Get = false;
 
-            //vTermWriteToLog(dupprintf("vTermScreenUpdated|vTermSetCommand (%s)", l_proc ? "true" : "false"), vTerm.Screen_New, vTerm.Screen);
+            vTerm.Screen_Get = false;
 
             vTermSetCommand();
         }
 
         if (l_proc == true) {
 
-            //vTermWriteToLog(dupprintf("vTermScreenUpdated|vTermNextScreenRow (%s)", l_proc ? "true" : "false"), vTerm.Screen_New, vTerm.Screen);
+            //l_ok = vTermInputCommandProcessed(dupprintf("vTermScreenUpdated|TermNextScreenRow(%s) #2", l_proc ? "true" : "false"));
 
             vTermNextScreenRow(true);
 
@@ -2733,6 +3170,7 @@ void vTermScreenUpdated( char* PuttyData, int DataLength) {
 
             strcpy(vTerm.Screen, vTerm.Screen_New);
 
+            l_proc = true;
         }
 
         else if (l_rows[0] < 0 || l_rows[1] < 0) {
@@ -2741,6 +3179,7 @@ void vTermScreenUpdated( char* PuttyData, int DataLength) {
 
             strcpy(vTerm.Screen, vTerm.Screen_New);
 
+            l_proc = true;
         }
 
         else {
@@ -2791,14 +3230,18 @@ void vTermScreenUpdated( char* PuttyData, int DataLength) {
             }
         }
 
-        vTerm.Screen_Len = vTerm.Screen_New_Len;
+        if (l_proc == true) {
 
-        memcpy(vTerm.Screen_Array, String_Array, sizeof(String_Array));
+            vTerm.Screen_Len = vTerm.Screen_New_Len;
 
-        vTerm.Screen_Array_Rows = vTerm.Screen_New_Rows;
+            memcpy(vTerm.Screen_Array, String_Array, sizeof(String_Array));
 
-        vTermSessionSetValue( vTerm.Screen, vTerm_Screen_pos, vTerm.Screen_Command_Seq_From, vTerm.Command_Seq);
-        vTermSessionSetValue( vTerm.Screen_Command_Seq_From, vTerm_Screen_Command_Seq_pos, vTerm.Command_Seq);
+            vTerm.Screen_Array_Rows = vTerm.Screen_New_Rows;
+
+            vTermSessionSetValue(vTerm.Screen, vTerm_Screen_pos, vTerm.Command_Seq);
+            vTermSessionSetValue(vTerm.Screen_Command_Seq_From, vTerm_Screen_Command_Seq_pos, vTerm.Command_Seq);
+
+        }
 
         if (!(l_new == true) && !(l_proc == true) && vTerm.Command_Seq > vTerm.Command_Seq_Max) {
             vTermNextScreenRow( false);
@@ -2821,6 +3264,8 @@ void vTermScreenUpdated( char* PuttyData, int DataLength) {
 
 void vTermInitialise(long term_hwnd) {
 
+    int pos = -1;
+
     vTermSessionTimeStamp();
 
     DBDelimiter = '|';
@@ -2829,66 +3274,27 @@ void vTermInitialise(long term_hwnd) {
 
     RecordForScripting = false;
 
-    SessionsKeyPressSync = false;
+    SessionsKeyPressSync = true;
 
-    if (!(vterm_nolog == true)) {
+    vTermLog_Execution = false;   // For debugging only.
 
-        if (strlen(vterm_log_file) == 0) {
+    pos = instr(vterm_hostname, "@", 0);
 
-            if (vterm_sessionid > 0) {
-                strcpy(vterm_log_file, dupstr(vTermSetFileName("Logs", dupprintf("%s_%d", vterm_hostname, vterm_sessionid), "log", true, true)));
-            }
-            else {
-                strcpy(vterm_log_file, dupstr(vTermSetFileName("Logs", dupprintf("%s", vterm_hostname), "log", true, true)));
-            }
-        }
-
-        vTermInitialiseLogs();
+    if (pos >= 0) {
+        strcpy(vterm_hostname, mid(dupstr(vterm_hostname), pos + 1, strlen(vterm_hostname)));
     }
-
-    if (!(vterm_nocapture == true)) {
-
-        if (strlen(vterm_capture_file) == 0) {
-
-            if (vterm_sessionid > 0) {
-                strcpy(vterm_capture_file, dupstr(vTermSetFileName("Capture", dupprintf("%s_%d_outputs", vterm_hostname, vterm_sessionid), "log", true, true)));
-            }
-            else {
-                strcpy(vterm_capture_file, dupstr(vTermSetFileName("Capture", dupprintf("%s_outputs", vterm_hostname), "log", true, true)));
-            }
-        }
-
-        if (stricmp(vterm_inputs_file, "yes") == 0 ||
-            stricmp(vterm_inputs_file, "on") == 0) {
-
-            if (vterm_sessionid > 0) {
-                strcpy(vterm_inputs_file, dupstr(vTermSetFileName("Capture", dupprintf("%s_%d_inputs", vterm_hostname, vterm_sessionid), "log", true, true)));
-            }
-            else {
-                strcpy(vterm_inputs_file, dupstr(vTermSetFileName("Capture", dupprintf("%s_inputs", vterm_hostname), "log", true, true)));
-            }
-
-        }
-    }
-
-    vTermLog_Execution = false;
-    
-    SessionsKeyPressSync = false;
     
     ReadKeyCodesFromFile();
 
+    vTermSessionInitialise(vterm_sessionid);
+
     ReadCommandsFromFile();
 
-    vTermSessionInitialise(vterm_sessionid);
+    vTerm.Command_Seq = 1;
 
     vTerm.Pid = (int)getpid();
 
     vTerm.Hwnd = term_hwnd;
 
     vTermSetCommand();
-
-    if (strlen(vterm_capture_file) >= 0) {
-        vTermOpenSessionFiles();
-    }
 }
-

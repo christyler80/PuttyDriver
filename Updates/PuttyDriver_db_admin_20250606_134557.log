@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sql_log xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<process>DB Data Updates</process>
+<database_host_ip>N/A</database_host_ip>
+<database_host>##AppPath##\DB\PuttyDriver.db</database_host>
+<database_driver>SQLite</database_driver>
+<database_name>PuttyDriver</database_name>
+<user_id>tyler</user_id>
+<user_name>Chris Tyler</user_name>
+<user_computer>CHRIS-TYLER-PC</user_computer>
+<user_computerip>169.254.64.204</user_computer>
+<process_start>2025-06-06 13:45:59</process_start>
+    <record>
+        <application_name>PuttyDriver GitHub.xlsb</application_name>
+        <function_name>System</function_name>
+        <function_field>35, 8</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>db_admin</db_table>
+        <db_serial>1003</db_serial>
+        <db_field>entity_values</db_field>
+        <db_value>DRIVER=SQLite3 ODBC Driver;Database=C:\Development\SSH_Telnet\DB\PuttyDriver.db;</db_value>
+        <db_new_value>Driver=SQLite3 ODBC Driver;Database=##AppPath##\DB\PuttyDriver.db;Version=3;</db_new_value>
+        <db_new_value_length>76</db_new_value_length>
+        <db_new_value_sql>[entity_values] = 'Driver=SQLite3 ODBC Driver;Database=##AppPath##\DB\PuttyDriver.db;Version=3;'</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver GitHub.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-06-06 13:45:59</updated_at>
+    </record>
+    <record>
+        <application_name>PuttyDriver GitHub.xlsb</application_name>
+        <function_name>System</function_name>
+        <function_field>44, 8</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>db_admin</db_table>
+        <db_serial>1012</db_serial>
+        <db_field>entity_values</db_field>
+        <db_value>Off</db_value>
+        <db_new_value>On</db_new_value>
+        <db_new_value_length>2</db_new_value_length>
+        <db_new_value_sql>[entity_values] = 'On'</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver GitHub.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-06-06 13:46:00</updated_at>
+    </record>
+    <record>
+        <application_name>PuttyDriver GitHub.xlsb</application_name>
+        <function_name>System</function_name>
+        <function_field>56, 8</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>db_admin</db_table>
+        <db_serial>1024</db_serial>
+        <db_field>entity_values</db_field>
+        <db_value>Off</db_value>
+        <db_new_value>On</db_new_value>
+        <db_new_value_length>2</db_new_value_length>
+        <db_new_value_sql>[entity_values] = 'On'</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver GitHub.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-06-06 13:46:00</updated_at>
+    </record>
+<process_end>2025-06-06 13:46:00</process_end>
+</updates_log>

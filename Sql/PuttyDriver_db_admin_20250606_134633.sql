@@ -1,0 +1,2 @@
+UPDATE [db_admin] SET [entity_description] = 'Sessions with command inputs loaded via tables ''sessions_commands_inputs'', ready to run but not yet scheduled.' WHERE [entity_id] = 1036
+UPDATE [db_admin] SET [entity_description] = 'Sessions with command inputs loaded via tables ''sessions_commands_inputs'' and scheduled to run at date/time specified in table.field ''sessions.session_start_at'' table field.' WHERE [entity_id] = 1037
