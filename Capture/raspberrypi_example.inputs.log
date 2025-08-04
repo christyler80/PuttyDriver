@@ -1,0 +1,206 @@
+<?xml version=1.0 encoding=UTF-8 standalone=yes?>
+<events_log xmlns:xsi=http://www.w3.org/2001/XMLSchema-instance>
+<user>tyler</user>
+<session_id>0</session_id>
+<server_hostname>raspberrypi.home</server_hostname>
+<server_ip>192.168.1.90</server_ip>
+<server_conntype>SSH</server_conntype>
+<server_connport>22</server_connport>
+<script></script>
+<process_start>250804_110548</process_start>
+<command_input_user>1||||pi@raspberrypi:~ $|15,0|15,19|pwd||Enter|||</command_input_user>
+<command_processed>1||||pi@raspberrypi:~ $|15,19|15,19|pwd||Enter||||</command_processed>
+<command_input_user>2||||pi@raspberrypi:~ $|17,0|17,19|sudo raspi-config||Enter|||</command_input_user>
+<command_processed>2||||pi@raspberrypi:~ $|17,19|17,19|sudo raspi-config||Enter||||</command_processed>
+<commands_processed_screen>1|2|</commands_processed_screen>
+<screen>
+Using username "pi". 
+Linux raspberrypi 6.1.21-v7+ #1642 SMP Mon Apr  3 17:20:52 BST 2023 armv7l 
+ 
+The programs included with the Debian GNU/Linux system are free software; 
+the exact distribution terms for each program are described in the 
+individual files in /usr/share/doc/*/copyright. 
+ 
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent 
+permitted by applicable law. 
+Last login: Mon Aug  4 11:05:22 2025 from 192.168.1.50 
+ 
+SSH is enabled and the default password for the 'pi' user has not been changed. 
+This is a security risk - please login as the 'pi' user and type 'passwd' to set a new password. 
+ 
+pi@raspberrypi:~ $ pwd 
+/home/pi 
+pi@raspberrypi:~ $ sudo raspi-config
+</screen>
+<command_input_user>3||||1 System Options|5,8|5,8|||Enter|||</command_input_user>
+<command_processed>3||||1 System Options|5,8|5,8|||Enter||||</command_processed>
+<commands_processed_screen>3|3|</commands_processed_screen>
+<screen>
+Raspberry Pi 3 Model B Rev 1.2 
+ 
+ 
++---------¦ Raspberry Pi Software Configuration Tool (raspi-config) +----------+ 
+¦                                                                              ¦ 
+¦       1 System Options       Configure system settings                       ¦ 
+¦       2 Display Options      Configure display settings                      ¦ 
+¦       3 Interface Options    Configure connections to peripherals            ¦ 
+¦       4 Performance Options  Configure performance settings                  ¦ 
+¦       5 Localisation Options Configure language and regional settings        ¦ 
+¦       6 Advanced Options     Configure advanced settings                     ¦ 
+¦       8 Update               Update this tool to the latest version          ¦ 
+¦       9 About raspi-config   Information about this configuration tool       ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                     <Select>                     <Finish>                    ¦ 
+¦                                                                              ¦ 
++------------------------------------------------------------------------------+
+</screen>
+<command_input_user>4||||S1 Wireless LAN|5,8|5,8|||KeyDown|||</command_input_user>
+<command_processed>4||||S1 Wireless LAN|5,8|5,8|||KeyDown||||</command_processed>
+<command_input_user>5||||S2 Audio|6,8|6,8|||KeyDown|||</command_input_user>
+<command_processed>5||||S2 Audio|6,8|6,8|||KeyDown||||</command_processed>
+<command_input_user>6||||S3 Password|7,8|7,8|||KeyDown|||</command_input_user>
+<command_processed>6||||S3 Password|7,8|7,8|||KeyDown||||</command_processed>
+<command_input_user>7||||S4 Hostname|8,8|8,8|||Enter|||</command_input_user>
+<command_processed>7||||S4 Hostname|8,8|8,8|||Enter||||</command_processed>
+<commands_processed_screen>4|7|</commands_processed_screen>
+<screen>
+ 
+ 
+ 
++---------¦ Raspberry Pi Software Configuration Tool (raspi-config) +----------+ 
+¦                                                                              ¦ 
+¦       S1 Wireless LAN      Enter SSID and passphrase                         ¦ 
+¦       S2 Audio             Select audio out through HDMI or 3.5mm jack       ¦ 
+¦       S3 Password          Change password for the 'pi' user                 ¦ 
+¦       S4 Hostname          Set name for this computer on a network           ¦ 
+¦       S5 Boot / Auto Login Select boot into desktop or to command line       ¦ 
+¦       S6 Network at Boot   Select wait for network connection on boot        ¦ 
+¦       S7 Splash Screen     Choose graphical splash screen or text boot       ¦ 
+¦       S8 Power LED         Set behaviour of power LED                        ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                     <Select>                     <Back>                      ¦ 
+¦                                                                              ¦ 
++------------------------------------------------------------------------------+
+</screen>
+<command_input_user>8||||<Ok>|19,37|19,38|||Enter|||</command_input_user>
+<command_processed>8||||<Ok>|19,38|19,38|||Enter||||</command_processed>
+<commands_processed_screen>8|8|</commands_processed_screen>
+<screen>
+ 
+ 
+     +--------------------------------------------------------------------+ 
+     ¦                                                                    ¦ 
+     ¦ Please note: RFCs mandate that a hostname's labels may contain     ¦ 
+     ¦ only the ASCII letters 'a' through 'z' (case-insensitive),         ¦ 
+     ¦ the digits '0' through '9', and the hyphen.                        ¦ 
+     ¦ Hostname labels cannot begin or end with a hyphen.                 ¦ 
+     ¦ No other symbols, punctuation characters, or blank spaces are      ¦ 
+     ¦ permitted.                                                         ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                               <Ok>                                 ¦ 
+     ¦                                                                    ¦ 
+     +--------------------------------------------------------------------+
+</screen>
+<command_input_user>9||||raspberrypi_____________________________________________|5,12|5,23|||Tab|||</command_input_user>
+<command_processed>9||||raspberrypi_____________________________________________|5,23|5,23|||Tab||||</command_processed>
+<command_input_user>10||||<Ok>|19,25|19,26|||Tab|||</command_input_user>
+<command_processed>10||||<Ok>|19,26|19,26|||Tab||||</command_processed>
+<command_input_user>11||||<Cancel>|19,47|19,48|||Enter|||</command_input_user>
+<command_processed>11||||<Cancel>|19,48|19,48|||Enter||||</command_processed>
+<commands_processed_screen>9|11|</commands_processed_screen>
+<screen>
+ 
+ 
+          +----------------------------------------------------------+ 
+          ¦ Please enter a hostname                                  ¦ 
+          ¦                                                          ¦ 
+          ¦ raspberrypi_____________________________________________ ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦              <Ok>                  <Cancel>              ¦ 
+          ¦                                                          ¦ 
+          +----------------------------------------------------------+
+</screen>
+<command_input_user>12||||1 System Options|5,8|5,8|||Tab|||</command_input_user>
+<command_processed>12||||1 System Options|5,8|5,8|||Tab||||</command_processed>
+<command_input_user>13||||<Select>|18,22|18,23|||Tab|||</command_input_user>
+<command_processed>13||||<Select>|18,23|18,23|||Tab||||</command_processed>
+<command_input_user>14||||<Finish>|18,51|18,52|||Enter|||</command_input_user>
+<command_processed>14||||<Finish>|18,52|18,52|||Enter||||</command_processed>
+<commands_processed_screen>12|14|</commands_processed_screen>
+<screen>
+Raspberry Pi 3 Model B Rev 1.2 
+ 
+ 
++---------¦ Raspberry Pi Software Configuration Tool (raspi-config) +----------+ 
+¦                                                                              ¦ 
+¦       1 System Options       Configure system settings                       ¦ 
+¦       2 Display Options      Configure display settings                      ¦ 
+¦       3 Interface Options    Configure connections to peripherals            ¦ 
+¦       4 Performance Options  Configure performance settings                  ¦ 
+¦       5 Localisation Options Configure language and regional settings        ¦ 
+¦       6 Advanced Options     Configure advanced settings                     ¦ 
+¦       8 Update               Update this tool to the latest version          ¦ 
+¦       9 About raspi-config   Information about this configuration tool       ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                     <Select>                     <Finish>                    ¦ 
+¦                                                                              ¦ 
++------------------------------------------------------------------------------+
+</screen>
+<command_input_user>15||||pi@raspberrypi:~ $|18,0|18,19|exit||Enter|||</command_input_user>
+<command_processed>15||||pi@raspberrypi:~ $|18,19|18,19|exit||Enter||||</command_processed>
+<commands_processed_screen>15|15|</commands_processed_screen>
+<screen>
+Using username "pi". 
+Linux raspberrypi 6.1.21-v7+ #1642 SMP Mon Apr  3 17:20:52 BST 2023 armv7l 
+ 
+The programs included with the Debian GNU/Linux system are free software; 
+the exact distribution terms for each program are described in the 
+individual files in /usr/share/doc/*/copyright. 
+ 
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent 
+permitted by applicable law. 
+Last login: Mon Aug  4 11:05:22 2025 from 192.168.1.50 
+ 
+SSH is enabled and the default password for the 'pi' user has not been changed. 
+This is a security risk - please login as the 'pi' user and type 'passwd' to set a new password. 
+ 
+pi@raspberrypi:~ $ pwd 
+/home/pi 
+pi@raspberrypi:~ $ sudo raspi-config 
+pi@raspberrypi:~ $ exit 
+logout
+</screen>
+<process_finish>250804_110613</process_finish>
+</events_log>
