@@ -1037,7 +1037,7 @@ void ReadCommandsFromFile() {
                     strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Command_Send_pos], ifnull(String_Array[vTerm_Command_Send_pos], ""));
                     strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Command_Input_Hidden_pos], ifnull(String_Array[vTerm_Command_Input_Hidden_pos], ""));
                     strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Command_Submit_Key_pos], ifnull(String_Array[vTerm_Command_Submit_Key_pos], ""));
-                    strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Command_Send_Pause_pos], ifnull(String_Array[vTerm_Command_Send_Pause_pos], "0"));
+                    strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_Command_Send_Pause_pos], ifnull(String_Array[vTerm_Command_Send_Pause_pos], ""));
                     strcpy(vTermCommands[vTerm.Command_Seq_Max][vTerm_DBRecord_Script_Cmd_ID_pos], ifnull(String_Array[vTerm_DBRecord_Script_Cmd_ID_pos], "0"));
 
                     vTermSetCommand();
@@ -1359,6 +1359,7 @@ char* vTermScreenTextPosition( char* ScreenText, bool CursorPos) {
 
     int pos;
     int row;
+    int row_adj;
 
     vTermScreenText_Pos_X = -1;
     vTermScreenText_Pos_Y = -1;
@@ -1376,16 +1377,18 @@ char* vTermScreenTextPosition( char* ScreenText, bool CursorPos) {
 
     while (row >= 0) {
 
-        if (!CursorPos || row == vTerm.Screen_Cursor.Y) {
+        row_adj = vTermScreenWrapAdjust(row - 1);
+
+        if (!CursorPos || row + row_adj == vTerm.Screen_Cursor.Y) {
 
             pos = instr(vTerm.Screen_Array[row], ScreenText, 0);
 
             if (pos >= 0) {
 
-                sprintf(vTermScreenTextPositionRet, "%d,%d", row + vTermScreenWrapAdjust( row - 1), pos);
+                sprintf(vTermScreenTextPositionRet, "%d,%d", row + row_adj, pos);
 
                 vTermScreenText_Pos_X = pos;
-                vTermScreenText_Pos_Y = row + vTermScreenWrapAdjust( row - 1);
+                vTermScreenText_Pos_Y = row + row_adj;
 
                 break;
             }
@@ -2418,9 +2421,13 @@ void vTermSetCommandProcessed()
         append_string(vTerm.Commands_Input, vTerm.Command_Processed_Submit_Key, MAX_BUFFER_SIZE);
 
     append_char(vTerm.Commands_Input, DBDelimiter, MAX_BUFFER_SIZE);
-    append_string(vTerm.Commands_Input, dupprintf("%d", vTerm.Command_Send_Pause), MAX_BUFFER_SIZE);
+
+    if (vTerm.Command_Send_Pause > 0) append_string(vTerm.Commands_Input, dupprintf("%d", vTerm.Command_Send_Pause), MAX_BUFFER_SIZE);
+
     append_char(vTerm.Commands_Input, DBDelimiter, MAX_BUFFER_SIZE);
-    append_string(vTerm.Commands_Input, dupprintf("%d", vTerm.Command_Script_DB_ID), MAX_BUFFER_SIZE);
+
+    if (vTerm.Command_Script_DB_ID > 0) append_string(vTerm.Commands_Input, dupprintf("%d", vTerm.Command_Script_DB_ID), MAX_BUFFER_SIZE);
+
     append_char(vTerm.Commands_Input, DBDelimiter, MAX_BUFFER_SIZE);
 
     if (strlen(trim(vTerm.Commands_Processed)) > 0) {
@@ -2449,9 +2456,9 @@ void vTermSetCommandProcessed()
         append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
         append_string(vTerm.Commands_Processed, vTerm.Submit_Key, MAX_BUFFER_SIZE);
         append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
-        append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Send_Pause), MAX_BUFFER_SIZE);
+        if (vTerm.Command_Send_Pause > 0) append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Send_Pause), MAX_BUFFER_SIZE);
         append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
-        append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Script_DB_ID), MAX_BUFFER_SIZE);
+        if (vTerm.Command_Script_DB_ID > 0) append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Script_DB_ID), MAX_BUFFER_SIZE);
         append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
         append_string(vTerm.Commands_Processed, "</command_input_script>", MAX_BUFFER_SIZE);
         append_char(vTerm.Commands_Processed, '\n', MAX_BUFFER_SIZE);
@@ -2479,9 +2486,9 @@ void vTermSetCommandProcessed()
         append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
         append_string(vTerm.Commands_Processed, vTerm.Command_Processed_Submit_Key, MAX_BUFFER_SIZE);
         append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
-        append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Send_Pause), MAX_BUFFER_SIZE);
+        if (vTerm.Command_Send_Pause > 0) append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Send_Pause), MAX_BUFFER_SIZE);
         append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
-        append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Script_DB_ID), MAX_BUFFER_SIZE);
+        if (vTerm.Command_Script_DB_ID > 0) append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Script_DB_ID), MAX_BUFFER_SIZE);
         append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
         append_string(vTerm.Commands_Processed, "</command_input_user>", MAX_BUFFER_SIZE);
         append_char(vTerm.Commands_Processed, '\n', MAX_BUFFER_SIZE);
@@ -2520,9 +2527,9 @@ void vTermSetCommandProcessed()
     append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
     append_string(vTerm.Commands_Processed, vTerm.Command_Prompt_OK, MAX_BUFFER_SIZE);
     append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
-    append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Send_Pause), MAX_BUFFER_SIZE);
+    if (vTerm.Command_Send_Pause > 0) append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Send_Pause), MAX_BUFFER_SIZE);
     append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
-    append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Script_DB_ID), MAX_BUFFER_SIZE);
+    if (vTerm.Command_Script_DB_ID > 0) append_string(vTerm.Commands_Processed, dupprintf("%d", vTerm.Command_Script_DB_ID), MAX_BUFFER_SIZE);
     append_char(vTerm.Commands_Processed, DBDelimiter, MAX_BUFFER_SIZE);
     append_string(vTerm.Commands_Processed, "</command_processed>", MAX_BUFFER_SIZE);
 
@@ -3125,8 +3132,6 @@ void vTermScreenUpdated( char* PuttyData, int DataLength) {
         bool l_ok;
                 
         if (vTerm.Command_Processing_Finished == true) {
-
-            //l_ok = vTermInputCommandProcessed(dupprintf("vTermScreenUpdated|TermNextScreenRow(%s) #1", l_proc ? "true" : "false"));
 
             vTerm.Command_Processing = false;
             vTerm.Command_Processing_Started = false;
