@@ -1,1 +1,1 @@
-start "%~dp0" "putty.exe" -ssh pi@raspberrypi.home -pw raspberry -recordscript
+start "%~dp0" "putty.exe" -ssh pi@raspberrypi.home -pw raspberry -recordscript -capturefile pi_script_#1

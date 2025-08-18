@@ -1,0 +1,17 @@
+0|New Script|raspberrypi_home|raspberrypi.home||192.168.1.90|SSH|22|||||
+1||||pi@raspberrypi:~ $|15,0|15,19|pwd||Enter|||
+2||||pi@raspberrypi:~ $|17,0|17,19|ls||Enter|||
+3||||pi@raspberrypi:~ $|20,0|20,19|sudo raspi-config||Enter|||
+4||||1 System Options|5,8|5,8|||Enter|||
+5||||S1 Wireless LAN|5,8|5,8|||KeyDown|||
+6||||S2 Audio|6,8|6,8|||KeyDown|||
+7||||S3 Password|7,8|7,8|||KeyDown|||
+8||||S4 Hostname|8,8|8,8|||Enter|||
+9||||<Ok>|19,37|19,38|||Enter|||
+10||||raspberrypi_____________________________________________|5,12|5,23|||Tab|||
+11||||<Ok>|19,25|19,26|||Tab|||
+12||||<Cancel>|19,47|19,48|||Enter|||
+13||||1 System Options|5,8|5,8|||Tab|||
+14||||<Select>|18,22|18,23|||Tab|||
+15||||<Finish>|18,51|18,52|||Enter|||
+16||||pi@raspberrypi:~ $|21,0|21,19|exit||Enter|||

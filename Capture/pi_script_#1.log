@@ -7,12 +7,14 @@
 <server_conntype>SSH</server_conntype>
 <server_connport>22</server_connport>
 <script></script>
-<process_start>250804_110548</process_start>
+<process_start>250805_140911</process_start>
 <command_input_user>1||||pi@raspberrypi:~ $|15,0|15,19|pwd||Enter|||</command_input_user>
 <command_processed>1||||pi@raspberrypi:~ $|15,19|15,19|pwd||Enter||||</command_processed>
-<command_input_user>2||||pi@raspberrypi:~ $|17,0|17,19|sudo raspi-config||Enter|||</command_input_user>
-<command_processed>2||||pi@raspberrypi:~ $|17,19|17,19|sudo raspi-config||Enter||||</command_processed>
-<commands_processed_screen>1|2|</commands_processed_screen>
+<command_input_user>2||||pi@raspberrypi:~ $|17,0|17,19|ls||Enter|||</command_input_user>
+<command_processed>2||||pi@raspberrypi:~ $|17,19|17,19|ls||Enter||||</command_processed>
+<command_input_user>3||||pi@raspberrypi:~ $|20,0|20,19|sudo raspi-config||Enter|||</command_input_user>
+<command_processed>3||||pi@raspberrypi:~ $|20,19|20,19|sudo raspi-config||Enter||||</command_processed>
+<commands_processed_screen>1|3|</commands_processed_screen>
 <screen>
 Using username "pi". 
 Linux raspberrypi 6.1.21-v7+ #1642 SMP Mon Apr  3 17:20:52 BST 2023 armv7l 
@@ -23,18 +25,21 @@ individual files in /usr/share/doc/*/copyright.
  
 Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent 
 permitted by applicable law. 
-Last login: Mon Aug  4 11:05:22 2025 from 192.168.1.50 
+Last login: Mon Aug  4 11:07:25 2025 from 192.168.1.50 
  
 SSH is enabled and the default password for the 'pi' user has not been changed. 
 This is a security risk - please login as the 'pi' user and type 'passwd' to set a new password. 
  
 pi@raspberrypi:~ $ pwd 
 /home/pi 
+pi@raspberrypi:~ $ ls 
+Bookshelf  Documents  Music     Public     Videos 
+Desktop    Downloads  Pictures  Templates 
 pi@raspberrypi:~ $ sudo raspi-config
 </screen>
-<command_input_user>3||||1 System Options|5,8|5,8|||Enter|||</command_input_user>
-<command_processed>3||||1 System Options|5,8|5,8|||Enter||||</command_processed>
-<commands_processed_screen>3|3|</commands_processed_screen>
+<command_input_user>4||||1 System Options|5,8|5,8|||Enter|||</command_input_user>
+<command_processed>4||||1 System Options|5,8|5,8|||Enter||||</command_processed>
+<commands_processed_screen>4|4|</commands_processed_screen>
 <screen>
 Raspberry Pi 3 Model B Rev 1.2 
  
@@ -58,15 +63,15 @@ Raspberry Pi 3 Model B Rev 1.2
 ¦                                                                              ¦ 
 +------------------------------------------------------------------------------+
 </screen>
-<command_input_user>4||||S1 Wireless LAN|5,8|5,8|||KeyDown|||</command_input_user>
-<command_processed>4||||S1 Wireless LAN|5,8|5,8|||KeyDown||||</command_processed>
-<command_input_user>5||||S2 Audio|6,8|6,8|||KeyDown|||</command_input_user>
-<command_processed>5||||S2 Audio|6,8|6,8|||KeyDown||||</command_processed>
-<command_input_user>6||||S3 Password|7,8|7,8|||KeyDown|||</command_input_user>
-<command_processed>6||||S3 Password|7,8|7,8|||KeyDown||||</command_processed>
-<command_input_user>7||||S4 Hostname|8,8|8,8|||Enter|||</command_input_user>
-<command_processed>7||||S4 Hostname|8,8|8,8|||Enter||||</command_processed>
-<commands_processed_screen>4|7|</commands_processed_screen>
+<command_input_user>5||||S1 Wireless LAN|5,8|5,8|||KeyDown|||</command_input_user>
+<command_processed>5||||S1 Wireless LAN|5,8|5,8|||KeyDown||||</command_processed>
+<command_input_user>6||||S2 Audio|6,8|6,8|||KeyDown|||</command_input_user>
+<command_processed>6||||S2 Audio|6,8|6,8|||KeyDown||||</command_processed>
+<command_input_user>7||||S3 Password|7,8|7,8|||KeyDown|||</command_input_user>
+<command_processed>7||||S3 Password|7,8|7,8|||KeyDown||||</command_processed>
+<command_input_user>8||||S4 Hostname|8,8|8,8|||Enter|||</command_input_user>
+<command_processed>8||||S4 Hostname|8,8|8,8|||Enter||||</command_processed>
+<commands_processed_screen>5|8|</commands_processed_screen>
 <screen>
  
  
@@ -90,9 +95,9 @@ Raspberry Pi 3 Model B Rev 1.2
 ¦                                                                              ¦ 
 +------------------------------------------------------------------------------+
 </screen>
-<command_input_user>8||||<Ok>|19,37|19,38|||Enter|||</command_input_user>
-<command_processed>8||||<Ok>|19,38|19,38|||Enter||||</command_processed>
-<commands_processed_screen>8|8|</commands_processed_screen>
+<command_input_user>9||||<Ok>|19,37|19,38|||Enter|||</command_input_user>
+<command_processed>9||||<Ok>|19,38|19,38|||Enter||||</command_processed>
+<commands_processed_screen>9|9|</commands_processed_screen>
 <screen>
  
  
@@ -117,13 +122,13 @@ Raspberry Pi 3 Model B Rev 1.2
      ¦                                                                    ¦ 
      +--------------------------------------------------------------------+
 </screen>
-<command_input_user>9||||raspberrypi_____________________________________________|5,12|5,23|||Tab|||</command_input_user>
-<command_processed>9||||raspberrypi_____________________________________________|5,23|5,23|||Tab||||</command_processed>
-<command_input_user>10||||<Ok>|19,25|19,26|||Tab|||</command_input_user>
-<command_processed>10||||<Ok>|19,26|19,26|||Tab||||</command_processed>
-<command_input_user>11||||<Cancel>|19,47|19,48|||Enter|||</command_input_user>
-<command_processed>11||||<Cancel>|19,48|19,48|||Enter||||</command_processed>
-<commands_processed_screen>9|11|</commands_processed_screen>
+<command_input_user>10||||raspberrypi_____________________________________________|5,12|5,23|||Tab|||</command_input_user>
+<command_processed>10||||raspberrypi_____________________________________________|5,23|5,23|||Tab||||</command_processed>
+<command_input_user>11||||<Ok>|19,25|19,26|||Tab|||</command_input_user>
+<command_processed>11||||<Ok>|19,26|19,26|||Tab||||</command_processed>
+<command_input_user>12||||<Cancel>|19,47|19,48|||Enter|||</command_input_user>
+<command_processed>12||||<Cancel>|19,48|19,48|||Enter||||</command_processed>
+<commands_processed_screen>10|12|</commands_processed_screen>
 <screen>
  
  
@@ -148,13 +153,13 @@ Raspberry Pi 3 Model B Rev 1.2
           ¦                                                          ¦ 
           +----------------------------------------------------------+
 </screen>
-<command_input_user>12||||1 System Options|5,8|5,8|||Tab|||</command_input_user>
-<command_processed>12||||1 System Options|5,8|5,8|||Tab||||</command_processed>
-<command_input_user>13||||<Select>|18,22|18,23|||Tab|||</command_input_user>
-<command_processed>13||||<Select>|18,23|18,23|||Tab||||</command_processed>
-<command_input_user>14||||<Finish>|18,51|18,52|||Enter|||</command_input_user>
-<command_processed>14||||<Finish>|18,52|18,52|||Enter||||</command_processed>
-<commands_processed_screen>12|14|</commands_processed_screen>
+<command_input_user>13||||1 System Options|5,8|5,8|||Tab|||</command_input_user>
+<command_processed>13||||1 System Options|5,8|5,8|||Tab||||</command_processed>
+<command_input_user>14||||<Select>|18,22|18,23|||Tab|||</command_input_user>
+<command_processed>14||||<Select>|18,23|18,23|||Tab||||</command_processed>
+<command_input_user>15||||<Finish>|18,51|18,52|||Enter|||</command_input_user>
+<command_processed>15||||<Finish>|18,52|18,52|||Enter||||</command_processed>
+<commands_processed_screen>13|15|</commands_processed_screen>
 <screen>
 Raspberry Pi 3 Model B Rev 1.2 
  
@@ -178,9 +183,9 @@ Raspberry Pi 3 Model B Rev 1.2
 ¦                                                                              ¦ 
 +------------------------------------------------------------------------------+
 </screen>
-<command_input_user>15||||pi@raspberrypi:~ $|18,0|18,19|exit||Enter|||</command_input_user>
-<command_processed>15||||pi@raspberrypi:~ $|18,19|18,19|exit||Enter||||</command_processed>
-<commands_processed_screen>15|15|</commands_processed_screen>
+<command_input_user>16||||pi@raspberrypi:~ $|21,0|21,19|exit||Enter|||</command_input_user>
+<command_processed>16||||pi@raspberrypi:~ $|21,19|21,19|exit||Enter||||</command_processed>
+<commands_processed_screen>16|16|</commands_processed_screen>
 <screen>
 Using username "pi". 
 Linux raspberrypi 6.1.21-v7+ #1642 SMP Mon Apr  3 17:20:52 BST 2023 armv7l 
@@ -191,16 +196,19 @@ individual files in /usr/share/doc/*/copyright.
  
 Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent 
 permitted by applicable law. 
-Last login: Mon Aug  4 11:05:22 2025 from 192.168.1.50 
+Last login: Mon Aug  4 11:07:25 2025 from 192.168.1.50 
  
 SSH is enabled and the default password for the 'pi' user has not been changed. 
 This is a security risk - please login as the 'pi' user and type 'passwd' to set a new password. 
  
 pi@raspberrypi:~ $ pwd 
 /home/pi 
+pi@raspberrypi:~ $ ls 
+Bookshelf  Documents  Music     Public     Videos 
+Desktop    Downloads  Pictures  Templates 
 pi@raspberrypi:~ $ sudo raspi-config 
 pi@raspberrypi:~ $ exit 
 logout
 </screen>
-<process_finish>250804_110613</process_finish>
+<process_finish>250805_140943</process_finish>
 </events_log>
