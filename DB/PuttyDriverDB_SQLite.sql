@@ -99,7 +99,7 @@ CREATE TABLE "servers" (
     "server_description" TEXT NOT NULL,
     "server_hostname"    TEXT NOT NULL,
     "server_domain"      TEXT,
-    "conn_ip"            TEXT NOT NULL,
+    "server_ip"          TEXT NOT NULL,
     "conn_type"          TEXT NOT NULL,
     "conn_port"          INTEGER,
     "UID"                TEXT,
@@ -117,7 +117,7 @@ DROP INDEX IF EXISTS "servers_idx1";
 DROP INDEX IF EXISTS "servers_idx2";
 DROP INDEX IF EXISTS "servers_idx3";
 
-CREATE UNIQUE INDEX "servers_idx1" ON "servers" ("conn_ip", "conn_type", "conn_port");
+CREATE UNIQUE INDEX "servers_idx1" ON "servers" ("server_ip", "conn_type", "conn_port");
 CREATE UNIQUE INDEX "servers_idx2" ON "servers" ("server_name");
 CREATE INDEX "servers_idx3" ON "servers" ("server_hostname");
 
@@ -125,7 +125,7 @@ DROP TABLE IF EXISTS "scripts";
 
 CREATE TABLE "scripts" (
     "script_id"          INTEGER NOT NULL UNIQUE,
-    "script_name"        TEXT NOT NULL,
+    "script_name"        TEXT NOT NULL UNIQUE,
     "script_description" TEXT NOT NULL,
     "created_by"         TEXT NOT NULL,
     "created_at"         REAL NOT NULL,
@@ -160,8 +160,8 @@ CREATE TABLE "scripts_servers" (
     "updated_by"    TEXT NOT NULL,
     "updated_at"    REAL NOT NULL,
     UNIQUE("server_id", "script_id")
-    FOREIGN KEY("server_id") REFERENCES "servers"("server_id"),
-    FOREIGN KEY("script_id") REFERENCES "scripts"("script_id"),
+    FOREIGN KEY("server_id", "server_name") REFERENCES "servers"("server_id", "server_name"),
+    FOREIGN KEY("script_id", "script_name") REFERENCES "scripts"("script_id", "script_name"),
     PRIMARY KEY("script_svr_id" AUTOINCREMENT)
 );
 
@@ -194,7 +194,7 @@ CREATE TABLE "scripts_commands" (
     "updated_by"            TEXT NOT NULL,
     "updated_at"            REAL NOT NULL,
     UNIQUE("script_id", "command_seq")
-    FOREIGN KEY("script_id") REFERENCES "scripts"("script_id"),
+    FOREIGN KEY("script_id", "script_name") REFERENCES "scripts"("script_id", "script_name"),
     PRIMARY KEY("script_cmd_id" AUTOINCREMENT)
 );
 

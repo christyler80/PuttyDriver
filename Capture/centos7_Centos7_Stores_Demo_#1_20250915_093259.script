@@ -1,0 +1,14 @@
+0|Centos7_Stores_Demo #1||centos7||192.168.88.50|SSH|22|||||
+1||||login as:||0,10|informix||Enter|0|70|
+2||||password:||8,*|in4mix|Yes|Enter|0|71|
+3||||[informix@centos7 ~]$|15,0|15,22|ls||Enter|0|72|
+4||||[informix@centos7 ~]$|20,0|20,22|./run_stores4.sh||Enter|0|73|
+5|||No|MAIN:|0,0|0,5|||Enter|0|74|
+6|Customer Form|8,27|No|CUSTOMER:|0,0|0,9|f|||0|75|
+7|Customer Form|8,27|No|Number      :[|10,8|10,22|||KeyDown|0|76|
+8|Customer Form|8,27|No|Owner Name  :[|11,8|11,22|Frank||Escape|0|77|
+9|Customer Form|8,27||BROWSE:|0,0|0,7|q|||0|78|
+10|Customer Form|8,27|No|CUSTOMER:|0,0|0,9|e|||0|79|
+11|||No|MAIN:|0,0|0,5|e|||0|80|
+12||||[informix@centos7 ~]$|0,0|0,22|ls||Enter|0|81|
+13||||[informix@centos7 ~]$|5,0|5,22|exit||Enter|0|82|

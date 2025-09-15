@@ -1,0 +1,241 @@
+<?xml version=1.0 encoding=UTF-8 standalone=yes?>
+<events_log xmlns:xsi=http://www.w3.org/2001/XMLSchema-instance>
+<user>tyler</user>
+<session_id>0</session_id>
+<server_hostname>raspberrypi.home</server_hostname>
+<server_ip>192.168.1.90</server_ip>
+<server_conntype>SSH</server_conntype>
+<server_connport>22</server_connport>
+<script>C:\Development\SSH_Telnet\Capture\raspberrypi_Raspberry_Pi_OS_SSH_#1_20250915_085415.script</script>
+<process_start>250915_085416</process_start>
+<command_input_script>1||||login as:|0,0|0,10|pi||Enter||1|</command_input_script>
+<command_processed>1||||login as:|0,0|0,10|pi||Enter|Yes||1|</command_processed>
+<command_input_script>2||||password:|1,*|1,*|##private##|Yes|Enter||2|</command_input_script>
+<command_processed>2||||password:|1,22|1,32||Yes|Enter|Yes||2|</command_processed>
+<command_input_script>3||||pi@raspberrypi:~ $||*,19|clear||Enter||3|</command_input_script>
+<command_processed>3||||pi@raspberrypi:~ $|16,0|16,19|clear||Enter|Yes||3|</command_processed>
+<commands_processed_screen>1|3|</commands_processed_screen>
+<screen>
+login as: pi 
+pi@raspberrypi.home's password: 
+Linux raspberrypi 6.1.21-v7+ #1642 SMP Mon Apr  3 17:20:52 BST 2023 armv7l 
+ 
+The programs included with the Debian GNU/Linux system are free software; 
+the exact distribution terms for each program are described in the 
+individual files in /usr/share/doc/*/copyright. 
+ 
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent 
+permitted by applicable law. 
+Last login: Sun Sep 14 10:15:43 2025 from 192.168.1.50 
+ 
+SSH is enabled and the default password for the 'pi' user has not been changed. 
+This is a security risk - please login as the 'pi' user and type 'passwd' to set a new password. 
+ 
+pi@raspberrypi:~ $ clear
+</screen>
+<command_input_script>4||||pi@raspberrypi:~ $|0,0|*,19|pwd||Enter||4|</command_input_script>
+<command_processed>4||||pi@raspberrypi:~ $|0,0|0,19|pwd||Enter|Yes||4|</command_processed>
+<command_input_script>5||||pi@raspberrypi:~ $|2,0|*,19|ls||Enter||5|</command_input_script>
+<command_processed>5||||pi@raspberrypi:~ $|2,0|2,19|ls||Enter|Yes||5|</command_processed>
+<command_input_script>6||||||*,19|clear||Enter||6|</command_input_script>
+<command_processed>6||||||5,19|clear||Enter|Yes||6|</command_processed>
+<commands_processed_screen>4|6|</commands_processed_screen>
+<screen>
+pi@raspberrypi:~ $ pwd 
+/home/pi 
+pi@raspberrypi:~ $ ls 
+Bookshelf  Documents  Music     Public     Videos 
+Desktop    Downloads  Pictures  Templates 
+pi@raspberrypi:~ $ clear
+</screen>
+<command_input_script>7||||||0,19|pwd||Enter||7|</command_input_script>
+<command_processed>7||||||0,19|pwd||Enter|Yes||7|</command_processed>
+<command_input_script>8||||||2,19|ls||Enter||8|</command_input_script>
+<command_processed>8||||||2,19|ls||Enter|Yes||8|</command_processed>
+<command_input_script>9||||||*,19|sudo raspi-config||Enter||9|</command_input_script>
+<command_processed>9||||||5,19|sudo raspi-config||Enter|Yes||9|</command_processed>
+<commands_processed_screen>7|9|</commands_processed_screen>
+<screen>
+pi@raspberrypi:~ $ pwd 
+/home/pi 
+pi@raspberrypi:~ $ ls 
+Bookshelf  Documents  Music     Public     Videos 
+Desktop    Downloads  Pictures  Templates 
+pi@raspberrypi:~ $ sudo raspi-config
+</screen>
+<command_input_script>10|Raspberry Pi Software Configuration Tool|3,12||1 System Options|5,8|5,8|||Enter||10|</command_input_script>
+<command_processed>10|Raspberry Pi Software Configuration Tool|3,12||1 System Options|5,8|5,8|||Enter|Yes||10|</command_processed>
+<commands_processed_screen>10|10|</commands_processed_screen>
+<screen>
+Raspberry Pi 3 Model B Rev 1.2 
+ 
+ 
++---------¦ Raspberry Pi Software Configuration Tool (raspi-config) +----------+ 
+¦                                                                              ¦ 
+¦       1 System Options       Configure system settings                       ¦ 
+¦       2 Display Options      Configure display settings                      ¦ 
+¦       3 Interface Options    Configure connections to peripherals            ¦ 
+¦       4 Performance Options  Configure performance settings                  ¦ 
+¦       5 Localisation Options Configure language and regional settings        ¦ 
+¦       6 Advanced Options     Configure advanced settings                     ¦ 
+¦       8 Update               Update this tool to the latest version          ¦ 
+¦       9 About raspi-config   Information about this configuration tool       ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                     <Select>                     <Finish>                    ¦ 
+¦                                                                              ¦ 
++------------------------------------------------------------------------------+
+</screen>
+<command_input_script>11|Raspberry Pi Software Configuration Tool|3,12||S1 Wireless LAN|5,8|5,8|||KeyDown||11|</command_input_script>
+<command_processed>11|Raspberry Pi Software Configuration Tool|3,12||S1 Wireless LAN|5,8|5,8|||KeyDown|Yes||11|</command_processed>
+<command_input_script>12|Raspberry Pi Software Configuration Tool|3,12||S2 Audio|6,8|6,8|||KeyDown||12|</command_input_script>
+<command_processed>12|Raspberry Pi Software Configuration Tool|3,12||S2 Audio|6,8|6,8|||KeyDown|Yes||12|</command_processed>
+<command_input_script>13|Raspberry Pi Software Configuration Tool|3,12||S3 Password|7,8|7,8|||KeyDown||13|</command_input_script>
+<command_processed>13|Raspberry Pi Software Configuration Tool|3,12||S3 Password|7,8|7,8|||KeyDown|Yes||13|</command_processed>
+<command_input_script>14|Raspberry Pi Software Configuration Tool|3,12||S4 Hostname|8,8|8,8|||Enter||14|</command_input_script>
+<command_processed>14|Raspberry Pi Software Configuration Tool|3,12||S4 Hostname|8,8|8,8|||Enter|Yes||14|</command_processed>
+<commands_processed_screen>11|14|</commands_processed_screen>
+<screen>
+ 
+ 
+ 
++---------¦ Raspberry Pi Software Configuration Tool (raspi-config) +----------+ 
+¦                                                                              ¦ 
+¦       S1 Wireless LAN      Enter SSID and passphrase                         ¦ 
+¦       S2 Audio             Select audio out through HDMI or 3.5mm jack       ¦ 
+¦       S3 Password          Change password for the 'pi' user                 ¦ 
+¦       S4 Hostname          Set name for this computer on a network           ¦ 
+¦       S5 Boot / Auto Login Select boot into desktop or to command line       ¦ 
+¦       S6 Network at Boot   Select wait for network connection on boot        ¦ 
+¦       S7 Splash Screen     Choose graphical splash screen or text boot       ¦ 
+¦       S8 Power LED         Set behaviour of power LED                        ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                     <Select>                     <Back>                      ¦ 
+¦                                                                              ¦ 
++------------------------------------------------------------------------------+
+</screen>
+<command_input_script>15|Please note: RFCs mandate|4,7||||19,38|||Enter||15|</command_input_script>
+<command_processed>15|Please note: RFCs mandate|4,7||||19,38|||Enter|Yes||15|</command_processed>
+<commands_processed_screen>15|15|</commands_processed_screen>
+<screen>
+ 
+ 
+     +--------------------------------------------------------------------+ 
+     ¦                                                                    ¦ 
+     ¦ Please note: RFCs mandate that a hostname's labels may contain     ¦ 
+     ¦ only the ASCII letters 'a' through 'z' (case-insensitive),         ¦ 
+     ¦ the digits '0' through '9', and the hyphen.                        ¦ 
+     ¦ Hostname labels cannot begin or end with a hyphen.                 ¦ 
+     ¦ No other symbols, punctuation characters, or blank spaces are      ¦ 
+     ¦ permitted.                                                         ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                               <Ok>                                 ¦ 
+     ¦                                                                    ¦ 
+     +--------------------------------------------------------------------+
+</screen>
+<command_input_script>16|Please enter a hostname|3,12||||5,23|||Tab||16|</command_input_script>
+<command_processed>16|Please enter a hostname|3,12||||5,23|||Tab|Yes||16|</command_processed>
+<command_input_script>17|Please enter a hostname|3,12||||19,26|||Tab||17|</command_input_script>
+<command_processed>17|Please enter a hostname|3,12||||19,26|||Tab|Yes||17|</command_processed>
+<command_input_script>18|Please enter a hostname|3,12||||19,48|||Enter||18|</command_input_script>
+<command_processed>18|Please enter a hostname|3,12||||19,48|||Enter|Yes||18|</command_processed>
+<commands_processed_screen>16|18|</commands_processed_screen>
+<screen>
+ 
+ 
+          +----------------------------------------------------------+ 
+          ¦ Please enter a hostname                                  ¦ 
+          ¦                                                          ¦ 
+          ¦ raspberrypi_____________________________________________ ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦              <Ok>                  <Cancel>              ¦ 
+          ¦                                                          ¦ 
+          +----------------------------------------------------------+
+</screen>
+<command_input_script>19|Raspberry Pi Software Configuration Tool|3,12||1 System Options|5,8|5,8|||Tab||19|</command_input_script>
+<command_processed>19|Raspberry Pi Software Configuration Tool|3,12||1 System Options|5,8|5,8|||Tab|Yes||19|</command_processed>
+<command_input_script>20|Raspberry Pi Software Configuration Tool|3,12||<Select>|18,22|18,23|||Tab||20|</command_input_script>
+<command_processed>20|Raspberry Pi Software Configuration Tool|3,12||<Select>|18,22|18,23|||Tab|Yes||20|</command_processed>
+<command_input_script>21|Raspberry Pi Software Configuration Tool|3,12||<Finish>|18,51|18,52|||Enter||21|</command_input_script>
+<command_processed>21|Raspberry Pi Software Configuration Tool|3,12||<Finish>|18,51|18,52|||Enter|Yes||21|</command_processed>
+<commands_processed_screen>19|21|</commands_processed_screen>
+<screen>
+Raspberry Pi 3 Model B Rev 1.2 
+ 
+ 
++---------¦ Raspberry Pi Software Configuration Tool (raspi-config) +----------+ 
+¦                                                                              ¦ 
+¦       1 System Options       Configure system settings                       ¦ 
+¦       2 Display Options      Configure display settings                      ¦ 
+¦       3 Interface Options    Configure connections to peripherals            ¦ 
+¦       4 Performance Options  Configure performance settings                  ¦ 
+¦       5 Localisation Options Configure language and regional settings        ¦ 
+¦       6 Advanced Options     Configure advanced settings                     ¦ 
+¦       8 Update               Update this tool to the latest version          ¦ 
+¦       9 About raspi-config   Information about this configuration tool       ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                     <Select>                     <Finish>                    ¦ 
+¦                                                                              ¦ 
++------------------------------------------------------------------------------+
+</screen>
+<command_input_script>22||||pi@raspberrypi:~ $|*,0|*,19|clear||Enter||22|</command_input_script>
+<command_processed>22||||pi@raspberrypi:~ $|6,0|6,19|clear||Enter|Yes||22|</command_processed>
+<commands_processed_screen>22|22|</commands_processed_screen>
+<screen>
+pi@raspberrypi:~ $ pwd 
+/home/pi 
+pi@raspberrypi:~ $ ls 
+Bookshelf  Documents  Music     Public     Videos 
+Desktop    Downloads  Pictures  Templates 
+pi@raspberrypi:~ $ sudo raspi-config 
+pi@raspberrypi:~ $ clear
+</screen>
+<command_input_script>23||||pi@raspberrypi:~ $|0,0|0,19|pwd||Enter||23|</command_input_script>
+<command_processed>23||||pi@raspberrypi:~ $|0,0|0,19|pwd||Enter|Yes||23|</command_processed>
+<command_input_script>24||||pi@raspberrypi:~ $|2,0|2,19|ls||Enter||24|</command_input_script>
+<command_processed>24||||pi@raspberrypi:~ $|2,0|2,19|ls||Enter|Yes||24|</command_processed>
+<command_input_user>25||||pi@raspberrypi:~ $|5,0|5,19|exit||Enter|||</command_input_user>
+<command_processed>25||||pi@raspberrypi:~ $|5,19|5,19|exit||Enter||||</command_processed>
+<commands_processed_screen>23|25|</commands_processed_screen>
+<screen>
+pi@raspberrypi:~ $ pwd 
+/home/pi 
+pi@raspberrypi:~ $ ls 
+Bookshelf  Documents  Music     Public     Videos 
+Desktop    Downloads  Pictures  Templates 
+pi@raspberrypi:~ $ exit 
+logout
+</screen>
+<process_finish>250915_085426</process_finish>
+</events_log>

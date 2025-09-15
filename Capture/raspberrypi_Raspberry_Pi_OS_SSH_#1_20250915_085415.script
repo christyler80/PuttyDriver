@@ -1,0 +1,25 @@
+0|Raspberry Pi OS SSH #1|Raspberry Pi OS SSH|raspberrypi|home|192.168.1.90|SSH|22|||||
+1||||login as:|0,0|0,10|pi||Enter|0|1|
+2||||password:|1,*|1,*|raspberry|Yes|Enter|0|2|
+3||||pi@raspberrypi:~ $||*,19|clear||Enter|0|3|
+4||||pi@raspberrypi:~ $|0,0|*,19|pwd||Enter|0|4|
+5||||pi@raspberrypi:~ $|2,0|*,19|ls||Enter|0|5|
+6||||||*,19|clear||Enter|0|6|
+7||||||0,19|pwd||Enter|0|7|
+8||||||2,19|ls||Enter|0|8|
+9||||||*,19|sudo raspi-config||Enter|0|9|
+10|Raspberry Pi Software Configuration Tool|3,12||1 System Options|5,8|5,8|||Enter|0|10|
+11|Raspberry Pi Software Configuration Tool|3,12||S1 Wireless LAN|5,8|5,8|||KeyDown|0|11|
+12|Raspberry Pi Software Configuration Tool|3,12||S2 Audio|6,8|6,8|||KeyDown|0|12|
+13|Raspberry Pi Software Configuration Tool|3,12||S3 Password|7,8|7,8|||KeyDown|0|13|
+14|Raspberry Pi Software Configuration Tool|3,12||S4 Hostname|8,8|8,8|||Enter|0|14|
+15|Please note: RFCs mandate|4,7||||19,38|||Enter|0|15|
+16|Please enter a hostname|3,12||||5,23|||Tab|0|16|
+17|Please enter a hostname|3,12||||19,26|||Tab|0|17|
+18|Please enter a hostname|3,12||||19,48|||Enter|0|18|
+19|Raspberry Pi Software Configuration Tool|3,12||1 System Options|5,8|5,8|||Tab|0|19|
+20|Raspberry Pi Software Configuration Tool|3,12||<Select>|18,22|18,23|||Tab|0|20|
+21|Raspberry Pi Software Configuration Tool|3,12||<Finish>|18,51|18,52|||Enter|0|21|
+22||||pi@raspberrypi:~ $|*,0|*,19|clear||Enter|0|22|
+23||||pi@raspberrypi:~ $|0,0|0,19|pwd||Enter|0|23|
+24||||pi@raspberrypi:~ $|2,0|2,19|ls||Enter|0|24|

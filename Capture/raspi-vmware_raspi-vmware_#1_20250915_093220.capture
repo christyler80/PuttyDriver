@@ -1,0 +1,201 @@
+<?xml version=1.0 encoding=UTF-8 standalone=yes?>
+<events_log xmlns:xsi=http://www.w3.org/2001/XMLSchema-instance>
+<user>tyler</user>
+<session_id>0</session_id>
+<server_hostname>raspi-vmware</server_hostname>
+<server_ip>192.168.88.188</server_ip>
+<server_conntype>SSH</server_conntype>
+<server_connport>22</server_connport>
+<script>C:\Development\SSH_Telnet\Capture\raspi-vmware_raspi-vmware_#1_20250915_093220.script</script>
+<process_start>250915_093220</process_start>
+<command_input_script>1||||login as:|0,0|0,10|osboxes||Enter||25|</command_input_script>
+<command_processed>1||||login as:|0,0|0,10|osboxes||Enter|Yes||25|</command_processed>
+<command_input_script>2||||password:|1,*|1,*|##private##|Yes|Enter||26|</command_input_script>
+<command_processed>2||||password:|1,23|1,33||Yes|Enter|Yes||26|</command_processed>
+<command_input_script>3||||osboxes@raspberry:~ $|*,0|*,22|clear||Enter||27|</command_input_script>
+<command_processed>3||||osboxes@raspberry:~ $|11,0|11,22|clear||Enter|Yes||27|</command_processed>
+<commands_processed_screen>1|3|</commands_processed_screen>
+<screen>
+login as: osboxes 
+osboxes@raspi-vmware's password: 
+Linux raspberry 5.10.0-15-amd64 #1 SMP Debian 5.10.120-1 (2022-06-09) x86_64 
+ 
+The programs included with the Debian GNU/Linux system are free software; 
+the exact distribution terms for each program are described in the 
+individual files in /usr/share/doc/*/copyright. 
+ 
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent 
+permitted by applicable law. 
+Last login: Thu Sep  4 10:38:18 2025 from 192.168.88.1 
+osboxes@raspberry:~ $ clear
+</screen>
+<command_input_script>4||||osboxes@raspberry:~ $|0,0|*,22|pwd||Enter||28|</command_input_script>
+<command_processed>4||||osboxes@raspberry:~ $|0,0|0,22|pwd||Enter|Yes||28|</command_processed>
+<command_input_script>5||||osboxes@raspberry:~ $|2,0|*,22|ls||Enter||29|</command_input_script>
+<command_processed>5||||osboxes@raspberry:~ $|2,0|2,22|ls||Enter|Yes||29|</command_processed>
+<command_input_script>6||||||*,22|clear||Enter||30|</command_input_script>
+<command_processed>6||||||5,22|clear||Enter|Yes||30|</command_processed>
+<commands_processed_screen>4|6|</commands_processed_screen>
+<screen>
+osboxes@raspberry:~ $ pwd 
+/home/osboxes 
+osboxes@raspberry:~ $ ls 
+Bookshelf  Documents  grep   Pictures  Templates 
+Desktop    Downloads  Music  Public    Videos 
+osboxes@raspberry:~ $ clear
+</screen>
+<command_input_script>7||||||0,22|pwd||Enter||31|</command_input_script>
+<command_processed>7||||||0,22|pwd||Enter|Yes||31|</command_processed>
+<command_input_script>8||||||2,22|ls||Enter||32|</command_input_script>
+<command_processed>8||||||2,22|ls||Enter|Yes||32|</command_processed>
+<command_input_script>9||||||*,22|sudo raspi-config||Enter||33|</command_input_script>
+<command_processed>9||||||5,22|sudo raspi-config||Enter|Yes||33|</command_processed>
+<commands_processed_screen>7|9|</commands_processed_screen>
+<screen>
+osboxes@raspberry:~ $ pwd 
+/home/osboxes 
+osboxes@raspberry:~ $ ls 
+Bookshelf  Documents  grep   Pictures  Templates 
+Desktop    Downloads  Music  Public    Videos 
+osboxes@raspberry:~ $ sudo raspi-config
+</screen>
+<command_input_script>10|Raspberry Pi Software Configuration Tool|||1 System Options|5,8|5,8|||Enter||34|</command_input_script>
+<command_processed>10|Raspberry Pi Software Configuration Tool|3,12||1 System Options|5,8|5,8|||Enter|Yes||34|</command_processed>
+<commands_processed_screen>10|10|</commands_processed_screen>
+<screen>
+ 
+ 
+ 
++---------¦ Raspberry Pi Software Configuration Tool (raspi-config) +----------+ 
+¦                                                                              ¦ 
+¦       1 System Options       Configure system settings                       ¦ 
+¦       2 Display Options      Configure display settings                      ¦ 
+¦       3 Interface Options    Configure connections to peripherals            ¦ 
+¦       5 Localisation Options Configure language and regional settings        ¦ 
+¦       6 Advanced Options     Configure advanced settings                     ¦ 
+¦       8 Update               Update this tool to the latest version          ¦ 
+¦       9 About raspi-config   Information about this configuration tool       ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                     <Select>                     <Finish>                    ¦ 
+¦                                                                              ¦ 
++------------------------------------------------------------------------------+
+</screen>
+<command_input_script>11|Raspberry Pi Software Configuration Tool|||S1 Wireless LAN|5,8|5,8|||KeyDown||35|</command_input_script>
+<command_processed>11|Raspberry Pi Software Configuration Tool|3,12||S1 Wireless LAN|5,8|5,8|||KeyDown|Yes||35|</command_processed>
+<command_input_script>12|Raspberry Pi Software Configuration Tool|||S3 Password|6,8|6,8|||KeyDown||36|</command_input_script>
+<command_processed>12|Raspberry Pi Software Configuration Tool|3,12||S3 Password|6,8|6,8|||KeyDown|Yes||36|</command_processed>
+<command_input_script>13|Raspberry Pi Software Configuration Tool|||S4 Hostname|7,8|7,8|||Enter||37|</command_input_script>
+<command_processed>13|Raspberry Pi Software Configuration Tool|3,12||S4 Hostname|7,8|7,8|||Enter|Yes||37|</command_processed>
+<commands_processed_screen>11|13|</commands_processed_screen>
+<screen>
+ 
+ 
+ 
++---------¦ Raspberry Pi Software Configuration Tool (raspi-config) +----------+ 
+¦                                                                              ¦ 
+¦       S1 Wireless LAN      Enter SSID and passphrase                         ¦ 
+¦       S3 Password          Change password for the 'osboxes' user            ¦ 
+¦       S4 Hostname          Set name for this computer on a network           ¦ 
+¦       S5 Boot / Auto Login Select boot into desktop or to command line       ¦ 
+¦       S6 Network at Boot   Select wait for network connection on boot        ¦ 
+¦       S7 Splash Screen     Choose graphical splash screen or text boot       ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                                                                              ¦ 
+¦                     <Select>                     <Back>                      ¦ 
+¦                                                                              ¦ 
++------------------------------------------------------------------------------+
+</screen>
+<command_input_script>14|Please note: RFCs mandate|||||19,38|||Enter||38|</command_input_script>
+<command_processed>14|Please note: RFCs mandate|4,7||||19,38|||Enter|Yes||38|</command_processed>
+<commands_processed_screen>14|14|</commands_processed_screen>
+<screen>
+ 
+ 
+     +--------------------------------------------------------------------+ 
+     ¦                                                                    ¦ 
+     ¦ Please note: RFCs mandate that a hostname's labels may contain     ¦ 
+     ¦ only the ASCII letters 'a' through 'z' (case-insensitive),         ¦ 
+     ¦ the digits '0' through '9', and the hyphen.                        ¦ 
+     ¦ Hostname labels cannot begin or end with a hyphen.                 ¦ 
+     ¦ No other symbols, punctuation characters, or blank spaces are      ¦ 
+     ¦ permitted.                                                         ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                                                                    ¦ 
+     ¦                               <Ok>                                 ¦ 
+     ¦                                                                    ¦ 
+     +--------------------------------------------------------------------+
+</screen>
+<command_input_script>15|Please enter a hostname|||||5,21|||Tab||39|</command_input_script>
+<command_processed>15|Please enter a hostname|3,12||||5,21|||Tab|Yes||39|</command_processed>
+<command_input_script>16|Please enter a hostname|||||19,26|||Tab||40|</command_input_script>
+<command_processed>16|Please enter a hostname|3,12||||19,26|||Tab|Yes||40|</command_processed>
+<command_input_script>17|Please enter a hostname|||||19,48|||Enter||41|</command_input_script>
+<command_processed>17|Please enter a hostname|3,12||||19,48|||Enter|Yes||41|</command_processed>
+<commands_processed_screen>15|17|</commands_processed_screen>
+<screen>
+ 
+ 
+          +----------------------------------------------------------+ 
+          ¦ Please enter a hostname                                  ¦ 
+          ¦                                                          ¦ 
+          ¦ raspberry_______________________________________________ ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦                                                          ¦ 
+          ¦              <Ok>                  <Cancel>              ¦ 
+          ¦                                                          ¦ 
+          +----------------------------------------------------------+
+</screen>
+<command_input_script>18|Raspberry Pi Software Configuration Tool||No|1 System Options|5,8|5,8|||Tab||42|</command_input_script>
+<command_processed>18|Raspberry Pi Software Configuration Tool|3,12|No|1 System Options|5,8|5,8|||Tab|Yes||42|</command_processed>
+<command_input_script>19|Raspberry Pi Software Configuration Tool||No|<Select>|18,22|18,23|||Tab||43|</command_input_script>
+<command_processed>19|Raspberry Pi Software Configuration Tool|3,12|No|<Select>|18,22|18,23|||Tab|Yes||43|</command_processed>
+<command_input_script>20|Raspberry Pi Software Configuration Tool||No|<Finish>|18,51|18,52|||Enter||44|</command_input_script>
+<command_processed>20|Raspberry Pi Software Configuration Tool|3,12|No|<Finish>|18,51|18,52|||Enter|Yes||44|</command_processed>
+<command_input_script>21|||No|osboxes@raspberry:~ $|*,0|*,22|clear||Enter||45|</command_input_script>
+<command_processed>21|||No|osboxes@raspberry:~ $|6,0|6,22|clear||Enter|Yes||45|</command_processed>
+<command_input_script>22||||osboxes@raspberry:~ $|0,0|0,22|pwd||Enter||46|</command_input_script>
+<command_processed>22||||osboxes@raspberry:~ $|0,0|0,22|pwd||Enter|Yes||46|</command_processed>
+<command_input_script>23||||osboxes@raspberry:~ $|2,0|2,22|ls||Enter||47|</command_input_script>
+<command_processed>23||||osboxes@raspberry:~ $|2,0|2,22|ls||Enter|Yes||47|</command_processed>
+<command_input_script>24||||osboxes@raspberry:~ $|*,0|*,22|exit||Enter||48|</command_input_script>
+<command_processed>24||||osboxes@raspberry:~ $|5,0|5,22|exit||Enter|Yes||48|</command_processed>
+<commands_processed_screen>18|24|</commands_processed_screen>
+<screen>
+osboxes@raspberry:~ $ pwd 
+/home/osboxes 
+osboxes@raspberry:~ $ ls 
+Bookshelf  Documents  grep   Pictures  Templates 
+Desktop    Downloads  Music  Public    Videos 
+osboxes@raspberry:~ $ exit 
+logout
+</screen>
+<process_finish>250915_093227</process_finish>
+</events_log>

@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sql_log xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<process>DB Data Updates</process>
+<database_host_ip></database_host_ip>
+<database_host>##AppPath##\DB\PuttyDriver.db</database_host>
+<database_driver>SQLite</database_driver>
+<database_name>PuttyDriver</database_name>
+<user_id>tyler</user_id>
+<user_name>Chris Tyler</user_name>
+<user_computer>CHRIS-TYLER-PC</user_computer>
+<user_computerip>192.168.0.65</user_computer>
+<process_start>2025-09-15 09:44:08</process_start>
+    <record>
+        <application_name>PuttyDriver Dev.xlsb</application_name>
+        <function_name>scripts_servers</function_name>
+        <function_field>6, 1</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>scripts_servers</db_table>
+        <db_serial>1</db_serial>
+        <db_field>script_svr_id</db_field>
+        <db_value>Null</db_value>
+        <db_new_value>1</db_new_value>
+        <db_new_value_length>1</db_new_value_length>
+        <db_new_value_sql>[script_svr_id] = 1</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver Dev.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-09-15 09:44:08</updated_at>
+    </record>
+    <record>
+        <application_name>PuttyDriver Dev.xlsb</application_name>
+        <function_name>scripts_servers</function_name>
+        <function_field>6, 2</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>scripts_servers</db_table>
+        <db_serial>1</db_serial>
+        <db_field>server_id</db_field>
+        <db_value>Null</db_value>
+        <db_new_value>1</db_new_value>
+        <db_new_value_length>1</db_new_value_length>
+        <db_new_value_sql>[server_id] = '1'</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver Dev.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-09-15 09:44:08</updated_at>
+    </record>
+    <record>
+        <application_name>PuttyDriver Dev.xlsb</application_name>
+        <function_name>scripts_servers</function_name>
+        <function_field>6, 3</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>scripts_servers</db_table>
+        <db_serial>1</db_serial>
+        <db_field>server_name</db_field>
+        <db_value>Null</db_value>
+        <db_new_value>Raspberry Pi OS SSH</db_new_value>
+        <db_new_value_length>19</db_new_value_length>
+        <db_new_value_sql>[server_name] = 'Raspberry Pi OS SSH'</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver Dev.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-09-15 09:44:09</updated_at>
+    </record>
+    <record>
+        <application_name>PuttyDriver Dev.xlsb</application_name>
+        <function_name>scripts_servers</function_name>
+        <function_field>6, 4</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>scripts_servers</db_table>
+        <db_serial>1</db_serial>
+        <db_field>script_id</db_field>
+        <db_value>Null</db_value>
+        <db_new_value>1</db_new_value>
+        <db_new_value_length>1</db_new_value_length>
+        <db_new_value_sql>[script_id] = '1'</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver Dev.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-09-15 09:44:09</updated_at>
+    </record>
+    <record>
+        <application_name>PuttyDriver Dev.xlsb</application_name>
+        <function_name>scripts_servers</function_name>
+        <function_field>6, 5</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>scripts_servers</db_table>
+        <db_serial>1</db_serial>
+        <db_field>script_name</db_field>
+        <db_value>Null</db_value>
+        <db_new_value>Raspberry Pi OS SSH #1</db_new_value>
+        <db_new_value_length>22</db_new_value_length>
+        <db_new_value_sql>[script_name] = 'Raspberry Pi OS SSH #1'</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver Dev.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-09-15 09:44:09</updated_at>
+    </record>
+    <record>
+        <application_name>PuttyDriver Dev.xlsb</application_name>
+        <function_name>scripts_servers</function_name>
+        <function_field>6, 6</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>scripts_servers</db_table>
+        <db_serial>1</db_serial>
+        <db_field>status</db_field>
+        <db_value>Null</db_value>
+        <db_new_value>active</db_new_value>
+        <db_new_value_length>6</db_new_value_length>
+        <db_new_value_sql>[status] = 'active'</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver Dev.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-09-15 09:44:09</updated_at>
+    </record>
+    <record>
+        <application_name>PuttyDriver Dev.xlsb</application_name>
+        <function_name>scripts_servers</function_name>
+        <function_field>6, 7</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>scripts_servers</db_table>
+        <db_serial>1</db_serial>
+        <db_field>status_at</db_field>
+        <db_value>Null</db_value>
+        <db_new_value>44685.4145486111</db_new_value>
+        <db_new_value_length>16</db_new_value_length>
+        <db_new_value_sql>[status_at] = 44685.4145486111</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver Dev.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-09-15 09:44:09</updated_at>
+    </record>
+    <record>
+        <application_name>PuttyDriver Dev.xlsb</application_name>
+        <function_name>scripts_servers</function_name>
+        <function_field>7, 1</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>scripts_servers</db_table>
+        <db_serial>2</db_serial>
+        <db_field>script_svr_id</db_field>
+        <db_value>Null</db_value>
+        <db_new_value>2</db_new_value>
+        <db_new_value_length>1</db_new_value_length>
+        <db_new_value_sql>[script_svr_id] = 2</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver Dev.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-09-15 09:44:09</updated_at>
+    </record>
+    <record>
+        <application_name>PuttyDriver Dev.xlsb</application_name>
+        <function_name>scripts_servers</function_name>
+        <function_field>7, 2</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>scripts_servers</db_table>
+        <db_serial>2</db_serial>
+        <db_field>server_id</db_field>
+        <db_value>Null</db_value>
+        <db_new_value>2</db_new_value>
+        <db_new_value_length>1</db_new_value_length>
+        <db_new_value_sql>[server_id] = '2'</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver Dev.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-09-15 09:44:09</updated_at>
+    </record>
+    <record>
+        <application_name>PuttyDriver Dev.xlsb</application_name>
+        <function_name>scripts_servers</function_name>
+        <function_field>7, 3</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>scripts_servers</db_table>
+        <db_serial>2</db_serial>
+        <db_field>server_name</db_field>
+        <db_value>Null</db_value>
+        <db_new_value>raspi-vmware</db_new_value>
+        <db_new_value_length>12</db_new_value_length>
+        <db_new_value_sql>[server_name] = 'raspi-vmware'</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver Dev.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-09-15 09:44:09</updated_at>
+    </record>
+    <record>
+        <application_name>PuttyDriver Dev.xlsb</application_name>
+        <function_name>scripts_servers</function_name>
+        <function_field>7, 4</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>scripts_servers</db_table>
+        <db_serial>2</db_serial>
+        <db_field>script_id</db_field>
+        <db_value>Null</db_value>
+        <db_new_value>2</db_new_value>
+        <db_new_value_length>1</db_new_value_length>
+        <db_new_value_sql>[script_id] = '2'</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver Dev.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-09-15 09:44:09</updated_at>
+    </record>
+    <record>
+        <application_name>PuttyDriver Dev.xlsb</application_name>
+        <function_name>scripts_servers</function_name>
+        <function_field>7, 5</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>scripts_servers</db_table>
+        <db_serial>2</db_serial>
+        <db_field>script_name</db_field>
+        <db_value>Null</db_value>
+        <db_new_value>raspi-vmware #1</db_new_value>
+        <db_new_value_length>15</db_new_value_length>
+        <db_new_value_sql>[script_name] = 'raspi-vmware #1'</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver Dev.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-09-15 09:44:09</updated_at>
+    </record>
+    <record>
+        <application_name>PuttyDriver Dev.xlsb</application_name>
+        <function_name>scripts_servers</function_name>
+        <function_field>7, 6</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>scripts_servers</db_table>
+        <db_serial>2</db_serial>
+        <db_field>status</db_field>
+        <db_value>Null</db_value>
+        <db_new_value>active</db_new_value>
+        <db_new_value_length>6</db_new_value_length>
+        <db_new_value_sql>[status] = 'active'</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver Dev.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-09-15 09:44:09</updated_at>
+    </record>
+    <record>
+        <application_name>PuttyDriver Dev.xlsb</application_name>
+        <function_name>scripts_servers</function_name>
+        <function_field>7, 7</function_field>
+        <db_server></db_server>
+        <db_database>PuttyDriver</db_database>
+        <db_table>scripts_servers</db_table>
+        <db_serial>2</db_serial>
+        <db_field>status_at</db_field>
+        <db_value>Null</db_value>
+        <db_new_value>45873.4300694444</db_new_value>
+        <db_new_value_length>16</db_new_value_length>
+        <db_new_value_sql>[status_at] = 45873.4300694444</db_new_value_sql>
+        <updated_from>C:\Development\GitHub\PuttyDriver\PuttyDriver Dev.xlsb</updated_from>
+        <updated_by>tyler</updated_by>
+        <updated_at>2025-09-15 09:44:09</updated_at>
+    </record>
+<process_end>2025-09-15 09:44:09</process_end>
+</updates_log>

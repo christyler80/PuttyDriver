@@ -1,0 +1,25 @@
+0|raspi-vmware #1|raspi-vmware|raspi-vmware||192.168.88.188|SSH|22|||||
+1||||login as:|0,0|0,10|osboxes||Enter|0|25|
+2||||password:|1,*|1,*|osboxes.org|Yes|Enter|0|26|
+3||||osboxes@raspberry:~ $|*,0|*,22|clear||Enter|0|27|
+4||||osboxes@raspberry:~ $|0,0|*,22|pwd||Enter|0|28|
+5||||osboxes@raspberry:~ $|2,0|*,22|ls||Enter|0|29|
+6||||||*,22|clear||Enter|0|30|
+7||||||0,22|pwd||Enter|0|31|
+8||||||2,22|ls||Enter|0|32|
+9||||||*,22|sudo raspi-config||Enter|0|33|
+10|Raspberry Pi Software Configuration Tool|||1 System Options|5,8|5,8|||Enter|0|34|
+11|Raspberry Pi Software Configuration Tool|||S1 Wireless LAN|5,8|5,8|||KeyDown|0|35|
+12|Raspberry Pi Software Configuration Tool|||S3 Password|6,8|6,8|||KeyDown|0|36|
+13|Raspberry Pi Software Configuration Tool|||S4 Hostname|7,8|7,8|||Enter|0|37|
+14|Please note: RFCs mandate|||||19,38|||Enter|0|38|
+15|Please enter a hostname|||||5,21|||Tab|0|39|
+16|Please enter a hostname|||||19,26|||Tab|0|40|
+17|Please enter a hostname|||||19,48|||Enter|0|41|
+18|Raspberry Pi Software Configuration Tool||No|1 System Options|5,8|5,8|||Tab|0|42|
+19|Raspberry Pi Software Configuration Tool||No|<Select>|18,22|18,23|||Tab|0|43|
+20|Raspberry Pi Software Configuration Tool||No|<Finish>|18,51|18,52|||Enter|0|44|
+21|||No|osboxes@raspberry:~ $|*,0|*,22|clear||Enter|0|45|
+22||||osboxes@raspberry:~ $|0,0|0,22|pwd||Enter|0|46|
+23||||osboxes@raspberry:~ $|2,0|2,22|ls||Enter|0|47|
+24||||osboxes@raspberry:~ $|*,0|*,22|exit||Enter|0|48|

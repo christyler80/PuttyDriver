@@ -1,0 +1,93 @@
+<?xml version=1.0 encoding=UTF-8 standalone=yes?>
+<events_log xmlns:xsi=http://www.w3.org/2001/XMLSchema-instance>
+<user>tyler</user>
+<session_id>0</session_id>
+<server_hostname>centos7</server_hostname>
+<server_ip>192.168.88.50</server_ip>
+<server_conntype>SSH</server_conntype>
+<server_connport>22</server_connport>
+<script>C:\Development\SSH_Telnet\Capture\centos7_Centos7_Stores_Demo_#1_20250915_093259.script</script>
+<process_start>250915_093304</process_start>
+<command_input_script>1||||login as:||0,10|informix||Enter||70|</command_input_script>
+<command_processed>1||||login as:||0,10|informix||Enter|Yes||70|</command_processed>
+<command_input_script>2||||password:||8,*|##private##|Yes|Enter||71|</command_input_script>
+<command_processed>2||||password:|8,19|8,29||Yes|Enter|Yes||71|</command_processed>
+<command_input_script>3||||[informix@centos7 ~]$|15,0|15,22|ls||Enter||72|</command_input_script>
+<command_processed>3||||[informix@centos7 ~]$|15,0|15,22|ls||Enter|Yes||72|</command_processed>
+<command_input_script>4||||[informix@centos7 ~]$|20,0|20,22|./run_stores4.sh||Enter||73|</command_input_script>
+<command_processed>4||||[informix@centos7 ~]$|20,0|20,22|./run_stores4.sh||Enter|Yes||73|</command_processed>
+<commands_processed_screen>1|4|</commands_processed_screen>
+<screen>
+login as: informix 
+Pre-authentication banner message from server: 
+| +-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+ 
+|                         LINUXVMIMAGES.COM 
+| +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+|                     User Name: centos 
+|                     Password:  centos (sudo su -) 
+End of banner message from server 
+informix@centos7's password: 
+Last login: Thu Sep  4 10:39:22 2025 from 192.168.88.1 
++-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-+ 
+                        LINUXVMIMAGES.COM 
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+                    User Name: centos 
+                    Password:  centos (sudo su -) 
+[informix@centos7 ~]$ ls 
+demos      informix_env.sh    Music           run_stores4.sh   Videos 
+Desktop    informix_start.sh  Pictures        Temp             yum_updates.sh 
+Documents  informix_stop.sh   Public          Templates 
+Downloads  installers         README.install  user_tables.sql 
+[informix@centos7 ~]$ ./run_stores4.sh
+</screen>
+<command_input_script>5|||No|MAIN:|0,0|0,5|||Enter||74|</command_input_script>
+<command_processed>5|||No|MAIN:|0,0|0,5|||Enter|Yes||74|</command_processed>
+<command_input_script>6|Customer Form|8,27|No|CUSTOMER:|0,0|0,9|f||||75|</command_input_script>
+<command_processed>6|Customer Form|8,27|No||0,0|0,9|f|||Yes||75|</command_processed>
+<command_input_script>7|Customer Form|8,27|No|Number      :[|10,8|10,22|||KeyDown||76|</command_input_script>
+<command_processed>7|Customer Form|8,27|No|Number      :[|10,8|10,22|||KeyDown|Yes||76|</command_processed>
+<command_input_script>8|Customer Form|8,27|No|Owner Name  :[|11,8|11,22|Frank||Escape||77|</command_input_script>
+<command_processed>8|Customer Form|8,27|No|Owner Name  :[|11,8|11,22|Frank||Escape|Yes||77|</command_processed>
+<command_input_script>9|Customer Form|8,27||BROWSE:|0,0|0,7|q||||78|</command_input_script>
+<command_processed>9|Customer Form|8,27|||0,0|0,7|q|||Yes||78|</command_processed>
+<commands_processed_screen>5|9|</commands_processed_screen>
+<screen>
+BROWSE:   Next  Previous  First  Last  Select  Quit 
+View the next customer in the list 
+                                         +------------------------------+ 
+ ---------------------------------------                                  ----- 
+                                         +------------------------------+ 
+ 
+ 
+      +-----------------------------------------------------------+ 
+      ¦                    Customer Form                          ¦ 
+      ¦-----------------------------------------------------------¦ 
+      ¦ Number      :[        114]                                ¦ 
+      ¦ Owner Name  :[Frank          ][Albertson      ]           ¦ 
+      ¦ Company     :[Sporting Place      ]                       ¦ 
+      ¦ Address     :[947 Waverly Place   ]                       ¦ 
+      ¦              [                    ]                       ¦ 
+      ¦ City        :[Redwood City   ] State:[CA] Zipcode:[94062] ¦ 
+      ¦ Telephone   :[415-886-6677      ]                         ¦ 
+      +-----------------------------------------------------------+
+</screen>
+<command_input_script>10|Customer Form|8,27|No|CUSTOMER:|0,0|0,9|e||||79|</command_input_script>
+<command_processed>10|Customer Form|8,27|No||0,0|0,9|e|||Yes||79|</command_processed>
+<command_input_script>11|||No|MAIN:|0,0|0,5|e||||80|</command_input_script>
+<command_processed>11|||No||0,0|0,5|e|||Yes||80|</command_processed>
+<command_input_script>12||||[informix@centos7 ~]$|0,0|0,22|ls||Enter||81|</command_input_script>
+<command_processed>12||||[informix@centos7 ~]$|0,0|0,22|ls||Enter|Yes||81|</command_processed>
+<command_input_script>13||||[informix@centos7 ~]$|5,0|5,22|exit||Enter||82|</command_input_script>
+<command_processed>13||||[informix@centos7 ~]$|5,0|5,22|exit||Enter|Yes||82|</command_processed>
+<commands_processed_screen>10|13|</commands_processed_screen>
+<screen>
+[informix@centos7 ~]$ ls 
+demos      informix_env.sh    Music           run_stores4.sh   Videos 
+Desktop    informix_start.sh  Pictures        Temp             yum_updates.sh 
+Documents  informix_stop.sh   Public          Templates 
+Downloads  installers         README.install  user_tables.sql 
+[informix@centos7 ~]$ exit 
+logout
+</screen>
+<process_finish>250915_093312</process_finish>
+</events_log>
